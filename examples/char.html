@@ -33,8 +33,8 @@
 				mousey = e.clientY;
 			});
 
-			texture = g.createTexture(200, 200);
-			texture.loadImg("./lenna.png");
+			texture = g.createTexture(20, 20);
+			texture.loadText("げこ🐸", color = "#FF00FF", font = "40px sans-serif"); //, color = "#000000", font = "10px sans-serif");
 
 			time = 0.0;
 
@@ -46,12 +46,13 @@
 
 			g.clear();
 
+			texture.loadText("げこ🐸" + time, color = "#FF00FF", font = "40px sans-serif"); //, color = "#000000", font = "10px sans-serif");
+
 			g.fill(1.0, 0.0, 0.0);
 			g.stroke(0.0, 0.0, 1.0);
 			g.pushMatrix();
 			g.translate(mousex, mousey, 0);
-			g.scale(3, 3, 1);
-			g.image(texture, -100, -100, 200, 200);
+			g.image(texture, 0, 0, texture.width, texture.height);
 			g.popMatrix();
 			g.render();
 

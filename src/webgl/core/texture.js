@@ -7,6 +7,8 @@ export const Texture = class {
 		this.app = app;
 		this.gl = this.app.gl;
 		this.texture_buffer = null;
+		this.text_canvas = document.createElement("canvas");
+		this.text_2d = this.text_canvas.getContext("2d");
 		this.resize(width, height, format, type);
 	}
 	resize(width = 1, height = 1, format = null, type = null) {
@@ -36,19 +38,40 @@ export const Texture = class {
 		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 	}
 	loadImg(src, callback = null) {
-		if (this.texture_buffer != null) this.delete();
-		this.texture_buffer = this.gl.createTexture();
 		let img = new Image();
 		img.onload = () => {
 			this.resize(img.width, img.height);
+			this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 			this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, img);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, null);
-			this.width = img.width;
-			this.height = img.height;
 			if (callback !== null) callback();
 		}
 		img.src = src;
+	}
+	loadText(text, color = "#000000", font = "10px sans-serif") {
+		this.text_2d.textAlign = "left";
+		this.text_2d.textBaseline = "top";
+		this.text_2d.fillStyle = color;
+		this.text_2d.font = font;
+		const text_stat = this.text_2d.measureText(text);
+		const text_width = Math.max(1, Math.ceil(text_stat.width));
+		const text_height = Math.max(1, Math.ceil(Math.abs(text_stat.actualBoundingBoxDescent - text_stat.actualBoundingBoxAscent)));
+		if ((this.text_canvas.width !== text_width) || (this.text_canvas.height !== text_height)) {
+			this.text_canvas.width = text_width;
+			this.text_canvas.height = text_height;
+		}
+		this.text_2d.clearRect(0, 0, text_width, text_height);
+		this.text_2d.textAlign = "left";
+		this.text_2d.textBaseline = "top";
+		this.text_2d.fillStyle = color;
+		this.text_2d.font = font;
+		this.text_2d.fillText(text, 0, 0);
+		this.resize(this.text_canvas.width, this.text_canvas.height);
+		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
+		this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, this.text_canvas);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 	}
 	delete() {
 		this.gl.deleteTexture(this.texture_buffer);

@@ -78,7 +78,7 @@ export const Shader = class {
 			this.gl.deleteProgram(program);
 			return error;
 		}
-		if (this.program != null) this.gl.deleteProgram(this.program);
+		if (this.program !== null) this.gl.deleteProgram(this.program);
 		this.program = program;
 		this.gl.useProgram(this.program); // use this progam
 		// get variables info
@@ -110,35 +110,35 @@ export const Shader = class {
 		this.gl.useProgram(this.program);
 		switch (this.uniforms_type[name]) {
 			case "int":
-				if (typeof (x) != "number") throw new TypeError();
+				if (typeof (x) !== "number") throw new TypeError();
 				this.gl.uniform1i(this.uniforms_location[name], x);
 				break;
 			case "ivec2":
-				if ((typeof (x) != "number") || (typeof (y) != "number")) throw new TypeError();
+				if ((typeof (x) !== "number") || (typeof (y) !== "number")) throw new TypeError();
 				this.gl.uniform2i(this.uniforms_location[name], x, y);
 				break;
 			case "ivec3":
-				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number")) throw new TypeError();
+				if ((typeof (x) !== "number") || (typeof (y) !== "number") || (typeof (z) !== "number")) throw new TypeError();
 				this.gl.uniform3i(this.uniforms_location[name], x, y, z);
 				break;
 			case "ivec4":
-				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number") || (typeof (w) != "number")) throw new TypeError();
+				if ((typeof (x) !== "number") || (typeof (y) !== "number") || (typeof (z) !== "number") || (typeof (w) !== "number")) throw new TypeError();
 				this.gl.uniform4i(this.uniforms_location[name], x, y, z, w);
 				break;
 			case "float":
-				if (typeof (x) != "number") throw new TypeError();
+				if (typeof (x) !== "number") throw new TypeError();
 				this.gl.uniform1f(this.uniforms_location[name], x);
 				break;
 			case "vec2":
-				if ((typeof (x) != "number") || (typeof (y) != "number")) throw new TypeError();
+				if ((typeof (x) !== "number") || (typeof (y) !== "number")) throw new TypeError();
 				this.gl.uniform2f(this.uniforms_location[name], x, y);
 				break;
 			case "vec3":
-				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number")) throw new TypeError();
+				if ((typeof (x) !== "number") || (typeof (y) !== "number") || (typeof (z) !== "number")) throw new TypeError();
 				this.gl.uniform3f(this.uniforms_location[name], x, y, z);
 				break;
 			case "vec4":
-				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number") || (typeof (w) != "number")) throw new TypeError();
+				if ((typeof (x) !== "number") || (typeof (y) !== "number") || (typeof (z) !== "number") || (typeof (w) !== "number")) throw new TypeError();
 				this.gl.uniform4f(this.uniforms_location[name], x, y, z, w);
 				break;
 			case "mat2":

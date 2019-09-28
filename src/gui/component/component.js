@@ -135,7 +135,7 @@ export const Component = class {
 		return null;
 	}
 	getRootComponent(){
-		return (this.parent!=null)?this.parent.getRootComponent():this;
+		return (this.parent !== null)?this.parent.getRootComponent():this;
 	}
 	getGrobalPos(px, py){
 		if(this.parent === null) return new GLMath.vec2(this.x + px, this.y + py);

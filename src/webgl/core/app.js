@@ -32,7 +32,7 @@ export const App = class {
 		this.events.trigger("render", {});
 	}
 	resize(width, height) {
-		if ((typeof (width) != "number") || (typeof (height) != "number")) throw new TypeError();
+		if ((typeof (width) !== "number") || (typeof (height) !== "number")) throw new TypeError();
 		this.events.trigger("resize", { width: parseFloat(width), height: parseFloat(height) });
 	}
 };

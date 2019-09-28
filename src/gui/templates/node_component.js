@@ -78,7 +78,7 @@ export const NodeParam = class extends Component {
 				));
 			}
 		}
-		if (this.hit != 0.0) {
+		if (this.hit !== 0.0) {
 			this.hit = Math.max(0.0, this.hit - 0.25);
 			this.update_shape();
 		}

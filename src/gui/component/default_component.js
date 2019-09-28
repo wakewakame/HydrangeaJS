@@ -117,7 +117,7 @@ export const DefaultComponent = class extends Component {
 	}
 	update(){
 		/*
-		if(this.parent != null){
+		if(this.parent !== null){
 			this.x = Math.max(0.0, this.x);
 			this.y = Math.max(0.0, this.y);
 			this.x = Math.min(this.x, this.parent.w - this.w);

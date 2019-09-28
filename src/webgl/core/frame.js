@@ -12,11 +12,11 @@ export const Frame = class {
 		this.resize(width, height, format, type);
 	}
 	resize(width, height, format = null, type = null) {
-		if ((typeof (width) != "number") || (typeof (height) != "number")) throw new TypeError();
+		if ((typeof (width) !== "number") || (typeof (height) !== "number")) throw new TypeError();
 		if ((this.width === width) && (this.height === height)) return;
 		this.width = width;
 		this.height = height;
-		if (this.frame_buffer != null) this.delete();
+		if (this.frame_buffer !== null) this.delete();
 		this.frame_buffer = this.gl.createFramebuffer();
 		this.texture = new Texture(this.app, this.width, this.height, format, type);
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frame_buffer);
@@ -32,7 +32,7 @@ export const Frame = class {
 	}
 	endDraw() {
 		this.app.current_frame = this.tmp_current_frame;
-		let frame_buffer = (this.app.current_frame != null) ? this.app.current_frame.frame_buffer : null;
+		let frame_buffer = (this.app.current_frame !== null) ? this.app.current_frame.frame_buffer : null;
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, frame_buffer);
 		this.gl.viewport(0, 0, this.app.width, this.app.height);
 	}

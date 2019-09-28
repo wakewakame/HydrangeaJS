@@ -68,7 +68,7 @@ export const RootComponent = class extends Component {
 		}
 		if(this.dragFlag){
 			this.childs[0].mouseEvent("HIT", this.mouse.arr[0] - this.childs[0].x, this.mouse.arr[1] - this.childs[0].y, 0, 0);
-			if(this.mouse.arr[0] != this.pmouse.arr[0] || this.mouse.arr[1] != this.pmouse.arr[1]){
+			if(this.mouse.arr[0] !== this.pmouse.arr[0] || this.mouse.arr[1] !== this.pmouse.arr[1]){
 				this.childs[0].mouseEvent("DRAG", this.mouse.arr[0] - this.childs[0].x, this.mouse.arr[1] - this.childs[0].y, this.dragStartMouseX - this.childs[0].x, this.dragStartMouseY - this.childs[0].y);
 				this.clickFlag = false;
 			}
@@ -77,7 +77,7 @@ export const RootComponent = class extends Component {
 			for(let c of this.childs){
 				if (c.checkHit(this.mouse.arr[0], this.mouse.arr[1])){
 					c.mouseEvent("HIT", this.mouse.arr[0] - c.x, this.mouse.arr[1] - c.y, 0, 0);
-					if(this.mouse.arr[0] != this.pmouse.arr[0] || this.mouse.arr[1] != this.pmouse.arr[1]){
+					if(this.mouse.arr[0] !== this.pmouse.arr[0] || this.mouse.arr[1] !== this.pmouse.arr[1]){
 						c.mouseEvent("MOVE", this.mouse.arr[0] - c.x, this.mouse.arr[1] - c.y, 0, 0);
 					}
 					if(this.mousePressed && !this.pmousePressed){

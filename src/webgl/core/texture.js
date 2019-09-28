@@ -11,7 +11,7 @@ export const Texture = class {
 		this.resize(width, height, format, type);
 	}
 	resize(width = 1, height = 1, format = null, type = null) {
-		if ((typeof (width) != "number") || (typeof (height) != "number")) throw new TypeError();
+		if ((typeof (width) !== "number") || (typeof (height) !== "number")) throw new TypeError();
 		if ((this.width === width) && (this.height === height)) return;
 		this.width = width;
 		this.height = height;
@@ -19,7 +19,7 @@ export const Texture = class {
 		this.pow2_height = parseInt(Math.pow(2, Math.ceil(Math.log2(this.height))));
 		this.format = (format === null) ? this.gl.RGBA : format;
 		this.type = (type === null) ? this.gl.UNSIGNED_BYTE : type;
-		if (this.texture_buffer != null) this.delete();
+		if (this.texture_buffer !== null) this.delete();
 		this.texture_buffer = this.gl.createTexture();
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
@@ -30,7 +30,7 @@ export const Texture = class {
 		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 	}
 	update(pixels, left = 0, top = 0, width = this.width, height = this.height) {
-		if ((typeof (left) != "number") || (typeof (top) != "number") || (typeof (width) != "number") || (typeof (height) != "number")) throw new TypeError();
+		if ((typeof (left) !== "number") || (typeof (top) !== "number") || (typeof (width) !== "number") || (typeof (height) !== "number")) throw new TypeError();
 		if (this.texture_buffer === null) return;
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 		this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, left, top, width, height, this.format, this.type, pixels);

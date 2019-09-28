@@ -2,9 +2,15 @@ import { Node } from "../../gui/templates/node_component.js";
 import { ValueNodeParam } from "./param.js";
 
 export const FrameNode = class extends Node {
-	constructor(name, x, y) {
+	constructor(name, x, y, width = 512, height = 512, format = null, type = null) {
 		super(name, x, y);
 		this.frameBuffer = null;
+		this.frameBufferState = {
+			width: width,
+			height: height,
+			format: format,
+			type: type,
+		};
 		this.inputShaderNodeParam = null;
 		this.outputShaderNodeParam = null;
 		this.previewShader = null;
@@ -13,7 +19,12 @@ export const FrameNode = class extends Node {
 		super.setup();
 		this.inputShaderNodeParam = this.inputs.add(new ValueNodeParam("shader", "input"));
 		this.outputShaderNodeParam = this.outputs.add(new ValueNodeParam("frame", "output"));
-		this.frameBuffer = this.graphics.createFrame(512, 512);
+		this.frameBuffer = this.graphics.createFrame(
+			this.frameBufferState.width,
+			this.frameBufferState.height,
+			this.frameBufferState.format,
+			this.frameBufferState.type
+		);
 		this.previewShader = this.graphics.createShader();
 		this.previewShader.loadShader(this.previewShader.default_shader.vertex, `
 			precision highp float;
@@ -26,11 +37,26 @@ export const FrameNode = class extends Node {
 				gl_FragColor = texture2D(texture, vUv * textureArea);
 			}
 		`);
+		this.resizeBox.target.y = this.w * this.frameBuffer.height / this.frameBuffer.width;
 	}
 	deleted(){
 		super.deleted();
 		this.frameBuffer.delete();
 		this.previewShader.delete();
+	}
+	resizeFrame(width, height, format = null, type = null){
+		this.frameBufferState = {
+			width: width,
+			height: height,
+			format: format,
+			type: type,
+		};
+		this.frameBuffer.resize(
+			this.frameBufferState.width,
+			this.frameBufferState.height,
+			this.frameBufferState.format,
+			this.frameBufferState.type
+		);
 	}
 	job(){
 		super.job();

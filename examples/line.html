@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Select Text Encode -->
+	<meta content="ja" http-equiv="Content-Language" />
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<!-- Set Resolution -->
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- full screen on iOS browser -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<!-- title -->
+	<title>NodeShader</title>
+
+	<script type="text/javascript" src="../dst/hydrangea.js"></script>
+	<script type="text/javascript">
+		const Graphics = HydrangeaJS.WebGL.Graphics;
+		
+		let graphics;
+		let fps = 60.0;
+		let mouse = {x: 0, y: 0};
+
+		document.addEventListener("DOMContentLoaded", (event) => {
+			graphics = new Graphics(document.getElementById("canvas"));
+			window.addEventListener("resize", (event) => {
+				graphics.resize(window.innerWidth, window.innerHeight);
+			});
+			graphics.resize(window.innerWidth, window.innerHeight);
+			graphics.gapp.canvas.addEventListener("mousemove", (e) => {
+				mouse = {x: e.clientX, y: e.clientY};
+			});
+
+			loop();
+		});
+
+		const loop = () => {
+			graphics.clear();
+
+			graphics.fill(1.0, 0.0, 0.0);
+			graphics.stroke(0.0, 0.0, 1.0);
+			graphics.gshape.beginWeightShape(10.0);
+			graphics.gshape.color(1, 0, 0); graphics.gshape.vertex(100, 100, 0, 1, 0);
+			graphics.gshape.color(1, 0, 0); graphics.gshape.vertex(500, 500, 0, 1, 0);
+			graphics.gshape.color(1, 0, 0); graphics.gshape.vertex(100, 500, 0, 1, 0);
+			graphics.gshape.color(1, 0, 0); graphics.gshape.vertex(mouse.x, mouse.y, 0, 0, 1);
+			graphics.gshape.endWeightShape();
+			graphics.shape(graphics.gshape);
+			graphics.strokeWeight(10);
+			graphics.bezier(100, 100, 500, 500, 100, 500, mouse.x, mouse.y);
+			graphics.render();
+
+			setTimeout(loop, 1000.0 / fps);
+		}
+	</script>
+</head>
+
+<body style="position:fixed; top:0; left:0; width:100%; height:100%;">
+	<canvas id="canvas" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
+</body>
+</html>

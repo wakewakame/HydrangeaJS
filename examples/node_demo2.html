@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Select Text Encode -->
+	<meta content="ja" http-equiv="Content-Language" />
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<!-- Set Resolution -->
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- full screen on iOS browser -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<!-- title -->
+	<title>NodeShader</title>
+
+	<script type="text/javascript" src="../dst/hydrangea.js"></script>
+	<script type="text/javascript">
+		const RootComponent = HydrangeaJS.GUI.Component.RootComponent;
+		const DraggableComponent = HydrangeaJS.GUI.Component.DraggableComponent;
+		const TimeNode = HydrangeaJS.Extra.ShaderNode.TimeNode;
+		const PictureNode = HydrangeaJS.Extra.ShaderNode.PictureNode;
+		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
+		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
+
+		const Applet = class {
+			constructor(canvas) {
+				this.fps = 60.0;
+
+				this.root = new RootComponent(canvas);
+				window.addEventListener("resize", (e) => {
+					this.root.graphics.resize(window.innerWidth, window.innerHeight);
+				});
+				this.root.graphics.resize(window.innerWidth, window.innerHeight);
+
+				const draggableComponent = new DraggableComponent();
+				this.root.add(draggableComponent);
+
+				let node0 = draggableComponent.add(new TimeNode("hoge", 30 + 170 * 0, 130));
+				let node1 = draggableComponent.add(new PictureNode("hoge", "./lenna.png", 30 + 170 * 0, 30));
+				let node2 = draggableComponent.add(new ShaderNode  ("hoge", 30 + 170 * 1, 30));
+				let node3 = draggableComponent.add(new FrameNode  ("hoge", 30 + 170 * 2, 30));
+				let node4 = draggableComponent.add(new ShaderNode  ("hoge", 30 + 170 * 3, 30));
+				let node5 = draggableComponent.add(new FrameNode  ("hoge", 30 + 170 * 4, 30));
+
+				node2.loadShader(`
+					precision highp float;
+					uniform sampler2D texture;
+					uniform float time;
+					varying vec2 vUv;
+
+					void main(void){
+						vec2 p = vUv;
+						p -= vec2(0.5);
+						p *= mat2(cos(time), -sin(time), sin(time), cos(time));
+						p += vec2(0.5);
+						gl_FragColor = texture2D(texture, p);
+						gl_FragColor.rgb += vec3(vUv.x, 1.0 - sqrt(vUv.x * vUv.x + vUv.y * vUv.y), vUv.y);
+					}
+				`);
+
+				node4.loadShader(`
+					precision highp float;
+					uniform sampler2D texture;
+					varying vec2 vUv;
+
+					void main(void){
+						gl_FragColor = texture2D(texture, vUv);
+						gl_FragColor.rgb += vec3(vUv.x, 1.0 - sqrt(vUv.x * vUv.x + vUv.y * vUv.y), vUv.y);
+					}
+				`);
+
+				node2.inputs.childs[0].output = node1.outputs.childs[0];
+				node3.inputs.childs[0].output = node2.outputs.childs[0];
+				node4.inputs.childs[0].output = node3.outputs.childs[0];
+				node5.inputs.childs[0].output = node4.outputs.childs[0];
+				draggableComponent.activeChilds(node5);
+
+				document.body.addEventListener('dragover', (e) => {
+					e.stopPropagation();
+					e.preventDefault();
+					e.dataTransfer.dropEffect = 'copy';
+				}, false);
+				document.body.addEventListener("drop", (e) => {
+					e.stopPropagation();
+					e.preventDefault();
+					for(let file of e.dataTransfer.files) {
+						let url = window.URL.createObjectURL(file);
+						console.log(url);
+						draggableComponent.add(new PictureNode("hoge", url, 30 + 170 * 0, 30));
+					}
+				}, false);
+
+				this.loop();
+			}
+
+			loop() {
+				this.root.graphics.clear();
+
+				this.root.graphics.stroke(1.0, 1.0, 1.0, 0.0);
+				this.root.graphics.fill(1.0, 1.0, 1.0, 1.0);
+				this.root.graphics.rect(0, 0, this.root.w, this.root.h);
+
+				this.root.update();
+				this.root.draw();
+
+				setTimeout(this.loop.bind(this), 1000.0 / this.fps);
+			}
+		};
+		document.addEventListener("DOMContentLoaded", (event) => {
+			let canvas = document.getElementById("canvas");
+			node_editor = new Applet(canvas);
+		});
+	</script>
+</head>
+
+<body style="position:fixed; top:0; left:0; width:100%; height:100%;">
+	<canvas id="canvas" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
+</body>
+</html>

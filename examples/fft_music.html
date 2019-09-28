@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Select Text Encode -->
+	<meta content="ja" http-equiv="Content-Language" />
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<!-- Set Resolution -->
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- full screen on iOS browser -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<!-- title -->
+	<title>NodeShader</title>
+
+	<script type="text/javascript" src="../dst/hydrangea.js"></script>
+	<script type="text/javascript">
+		const Graphics = HydrangeaJS.WebGL.Graphics;
+
+		let g;
+		let gshader_prev;
+		let gtexture;
+		let gframe;
+		let gframe_tmp;
+
+		let sdft1_cos, sdft1_sin;
+		let sdft2;
+		let sdft3;
+		let gdft1_cos, gdft1_sin;
+		let gdft2_1_cos, gdft2_1_sin, gdft2_2_cos, gdft2_2_sin;
+		let gdft3;
+		let fftlen = 1024;
+		let wavlen = 1024;
+		let fftwavlen = wavlen * 4;
+		let hz1 = 0.0;
+		let hz2 = 3000.0;
+
+		let time = 0.0;
+
+		let mousex, mousey;
+
+		window.AudioContext = window.AudioContext || window.webkitAudioContext;
+		let audio_context;
+
+		let start = false;
+
+		document.addEventListener("DOMContentLoaded", (event) => {
+			g = new Graphics(document.getElementById("canvas")); // Element and Context
+			g.gapp.gl.disable(g.gapp.gl.BLEND);
+			gshader_prev = g.createShader();
+			gshader_prev.loadShader(gshader_prev.default_shader.vertex, `
+				precision highp float;
+				uniform sampler2D audio1;
+				uniform sampler2D audio2;
+				uniform float time; // time
+				uniform vec2 mouse; // mouse
+				uniform vec2 resolution; // resolution
+				varying vec2 vUv;
+				varying vec4 vColor;
+
+				uniform float sample_rate;
+				uniform int samples;
+
+				float getWave(float index){
+					float scale = 1.0 / 500.0;
+					vec4 waves1 = texture2D(audio1, vec2(0.0, index / float(samples))) * scale;
+					vec4 waves2 = texture2D(audio2, vec2(0.0, index / float(samples))) * scale;
+					return sqrt(pow(abs(waves1.r), 2.0) + pow(abs(waves2.r), 2.0));
+				}
+
+				void main(void){
+					vec2 pos = gl_FragCoord.xy / resolution;
+					vec2 px = vec2(1.0) / resolution;
+
+					float index = (pos.x + px.x * 0.0) * float(samples - 1);
+					float per = fract(index);
+					float val = abs(getWave(floor(index)) * (1.0 - per) + getWave(ceil(index)) * per) * 0.5 + 0.1;
+					val = floor(val * resolution.y) / resolution.y;
+
+					ivec3 col = (pos.y <= val) ? ivec3(30, 30, 30) : ivec3(240, 240, 240);
+					if (col == ivec3(30) && (fract((gl_FragCoord.x + gl_FragCoord.y) / 100.0) < 0.5)) col = ivec3(40);
+
+					gl_FragColor = vec4(vec3(col) / 255.0, 1.0);
+				}
+			`);
+			sdft1_cos = g.createShader();
+			sdft1_cos.loadShader(gshader_prev.default_shader.vertex, `
+				precision highp float;
+				uniform sampler2D audio;
+				uniform float time; // time
+				uniform vec2 mouse; // mouse
+				uniform vec2 resolution; // resolution
+				varying vec2 vUv;
+				varying vec4 vColor;
+
+				uniform float sample_rate;
+				uniform int samples;
+				uniform float hz1;
+				uniform float hz2;
+
+				const float PI = 3.14159265358979;
+
+				float getWave(int index, float wave){
+					float pos = float(index) / float(samples);
+					float hz = hz1 * (1.0 - gl_FragCoord.y / resolution.y) + hz2 * (gl_FragCoord.y / resolution.y);
+					float w = wave * (0.5 - 0.5 * cos(pos * 2.0 * PI));
+					w *= cos(hz * (float(index) / float(sample_rate)) * (2.0 * PI));
+					return w;
+				}
+				
+				void main(void){
+					vec2 pos = vec2(
+						gl_FragCoord.x / resolution.x,
+						gl_FragCoord.y / resolution.y
+					);
+					vec4 val = texture2D(audio, vec2(pos.x, 0.0));
+					vec4 ret = vec4(0.0);
+					for(int ch = 0; ch < 4; ch++){
+						int index = int(pos.x * float(samples - 1)) + ch;
+						if (ch == 0) ret.r = getWave(index, val.r);
+						if (ch == 1) ret.g = getWave(index, val.g);
+						if (ch == 2) ret.b = getWave(index, val.b);
+						if (ch == 3) ret.a = getWave(index, val.a);
+					}
+					gl_FragColor = ret;
+				}
+			`);
+			sdft1_sin = g.createShader();
+			sdft1_sin.loadShader(gshader_prev.default_shader.vertex, `
+				precision highp float;
+				uniform sampler2D audio;
+				uniform float time; // time
+				uniform vec2 mouse; // mouse
+				uniform vec2 resolution; // resolution
+				varying vec2 vUv;
+				varying vec4 vColor;
+
+				uniform float sample_rate;
+				uniform int samples;
+				uniform float hz1;
+				uniform float hz2;
+
+				const float PI = 3.14159265358979;
+
+				float getWave(int index, float wave){
+					float pos = float(index) / float(samples);
+					float hz = hz1 * (1.0 - gl_FragCoord.y / resolution.y) + hz2 * (gl_FragCoord.y / resolution.y);
+					float w = wave * (0.5 - 0.5 * cos(pos * 2.0 * PI));
+					w *= sin(hz * (float(index) / float(sample_rate)) * (2.0 * PI));
+					return w;
+				}
+				
+				void main(void){
+					vec2 pos = vec2(
+						gl_FragCoord.x / resolution.x,
+						gl_FragCoord.y / resolution.y
+					);
+					vec4 val = texture2D(audio, vec2(pos.x, 0.0));
+					vec4 ret = vec4(0.0);
+					for(int ch = 0; ch < 4; ch++){
+						int index = int(pos.x * float(samples - 1)) + ch;
+						if (ch == 0) ret.r = getWave(index, val.r);
+						if (ch == 1) ret.g = getWave(index, val.g);
+						if (ch == 2) ret.b = getWave(index, val.b);
+						if (ch == 3) ret.a = getWave(index, val.a);
+					}
+					gl_FragColor = ret;
+				}
+			`);
+			sdft2 = g.createShader();
+			sdft2.loadShader(gshader_prev.default_shader.vertex, `
+				precision highp float;
+				uniform sampler2D audio;
+				uniform float time; // time
+				uniform vec2 mouse; // mouse
+				uniform vec2 resolution; // resolution
+				varying vec2 vUv;
+				varying vec4 vColor;
+
+				uniform int times;
+
+				void main(void){
+					vec2 pos = gl_FragCoord.xy / resolution;
+					int gap = int(pow(2.0, float(times)));
+
+					vec4 ret = vec4(0.0);
+					if (int(mod(gl_FragCoord.x, float(gap))) == 0){
+						ret += texture2D(audio, pos);
+						ret += texture2D(audio, pos + vec2(float(gap / 2) / resolution.x, 0.0));
+						ret.r = ret.r + ret.g + ret.b + ret.a;
+						ret.g = ret.b = ret.a = 0.0;
+					}
+
+					gl_FragColor = ret;
+				}
+			`);
+			gtexture = g.createTexture(wavlen / 4, 1, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gframe_tmp = g.createFrame(fftwavlen / 4, 1, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gframe = g.createFrame(fftwavlen / 4, 1, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gdft1_cos = g.createFrame(gframe.width, fftlen, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gdft1_sin = g.createFrame(gframe.width, fftlen, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gdft2_1_cos = g.createFrame(gframe.width, fftlen, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gdft2_1_sin = g.createFrame(gframe.width, fftlen, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gdft2_2_cos = g.createFrame(gframe.width, fftlen, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gdft2_2_sin = g.createFrame(gframe.width, fftlen, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+			gdft3 = g.createFrame(gframe.width, 1, g.gapp.gl.RGBA, g.gapp.gl.FLOAT);
+
+			time = 0.0; // Shader's variable
+
+			window.addEventListener("resize", (event) => {
+				g.resize(window.innerWidth, window.innerHeight);
+			});
+			g.resize(window.innerWidth, window.innerHeight);
+
+			document.getElementById("mes").addEventListener("mousemove", (e) => {
+				mousex = e.clientX;
+				mousey = e.clientY;
+			});
+
+			document.getElementById("mes").addEventListener("click", (event) => {
+				if (start) return;
+				start = true;
+
+
+				audio_context = new AudioContext();
+
+				let scriptProcessor = audio_context.createScriptProcessor(wavlen, 1, 1);
+				scriptProcessor.onaudioprocess = loop;
+				scriptProcessor.connect(audio_context.destination);
+
+				// Audio 用の buffer を読み込む
+				let getAudioBuffer = function (url, fn) {
+					let req = new XMLHttpRequest();
+					// array buffer を指定
+					req.responseType = 'arraybuffer';
+
+					req.onreadystatechange = function () {
+						if (req.readyState === 4) {
+							if (req.status === 0 || req.status === 200) {
+								// array buffer を audio buffer に変換
+								audio_context.decodeAudioData(req.response, function (buffer) {
+									// コールバックを実行
+									fn(buffer);
+								});
+							}
+						}
+					};
+
+					req.open('GET', url, true);
+					req.send('');
+				};
+
+				// サウンドを再生
+				let playSound = function (buffer) {
+					// source を作成
+					let source = audio_context.createBufferSource();
+					// buffer をセット
+					source.buffer = buffer;
+					// context に connect
+					source.connect(scriptProcessor);
+					// 再生
+					source.start(0);
+				};
+
+				// サウンドを読み込む
+				getAudioBuffer('music.mp3', function (buffer) {
+					playSound(buffer);
+				});
+			});
+		});
+
+		const loop = (e) => {
+			let input = e.inputBuffer.getChannelData(0);
+			let output = e.outputBuffer.getChannelData(0);
+			let input_sample_rate = e.inputBuffer.sampleRate;
+			let output_sample_rate = e.outputBuffer.sampleRate;
+
+			time += input.length / input_sample_rate;
+
+			gtexture.update(input);
+
+			gframe.beginDraw();
+			g.image(gframe_tmp.texture, 0 - gtexture.width, 0, gframe.width, gframe.height);
+			g.image(gtexture, gframe.width - gtexture.width, 0, gtexture.width, gframe.height);
+			gframe.endDraw();
+
+			gframe_tmp.beginDraw();
+			g.image(gframe.texture, 0, 0, gframe.width, gframe.height);
+			gframe_tmp.endDraw();
+
+			gdft1_cos.beginDraw();
+			sdft1_cos.set("time", time);
+			sdft1_cos.set("resolution", parseFloat(gdft1_cos.width), parseFloat(gdft1_cos.height));
+			sdft1_cos.set("audio", gframe.texture);
+			sdft1_cos.set("sample_rate", input_sample_rate);
+			sdft1_cos.set("samples", fftwavlen);
+			sdft1_cos.set("hz1", hz1);
+			sdft1_cos.set("hz2", hz2);
+			g.shader(sdft1_cos);
+			g.rect(0, 0, gdft1_cos.width, gdft1_cos.height);
+			gdft1_cos.endDraw();
+
+			gdft1_sin.beginDraw();
+			sdft1_sin.set("time", time);
+			sdft1_sin.set("resolution", parseFloat(gdft1_sin.width), parseFloat(gdft1_sin.height));
+			sdft1_sin.set("audio", gframe.texture);
+			sdft1_sin.set("sample_rate", input_sample_rate);
+			sdft1_sin.set("samples", fftwavlen);
+			sdft1_sin.set("hz1", hz1);
+			sdft1_sin.set("hz2", hz2);
+			g.shader(sdft1_sin);
+			g.rect(0, 0, gdft1_sin.width, gdft1_sin.height);
+			gdft1_sin.endDraw();
+
+			for (let times = 1; times <= Math.log2(gdft1_cos.width); times++) {
+				gdft2_1_cos.beginDraw();
+				sdft2.set("time", time);
+				sdft2.set("resolution", parseFloat(gdft2_1_cos.width), parseFloat(gdft2_1_cos.height));
+				sdft2.set("audio", (times === 1) ? gdft1_cos.texture : gdft2_2_cos.texture);
+				sdft2.set("times", times);
+				g.shader(sdft2);
+				g.rect(0, 0, gdft2_1_cos.width, gdft2_1_cos.height);
+				gdft2_1_cos.endDraw();
+
+				gdft2_1_sin.beginDraw();
+				sdft2.set("time", time);
+				sdft2.set("resolution", parseFloat(gdft2_1_sin.width), parseFloat(gdft2_1_sin.height));
+				sdft2.set("audio", (times === 1) ? gdft1_sin.texture : gdft2_2_sin.texture);
+				sdft2.set("times", times);
+				g.shader(sdft2);
+				g.rect(0, 0, gdft2_1_sin.width, gdft2_1_sin.height);
+				gdft2_1_sin.endDraw();
+
+				times++;
+
+				gdft2_2_cos.beginDraw();
+				sdft2.set("time", time);
+				sdft2.set("resolution", parseFloat(gdft2_2_cos.width), parseFloat(gdft2_2_cos.height));
+				sdft2.set("audio", (times === 1) ? gdft1_cos.texture : gdft2_1_cos.texture);
+				sdft2.set("times", times);
+				g.shader(sdft2);
+				g.rect(0, 0, gdft2_2_cos.width, gdft2_2_cos.height);
+				gdft2_2_cos.endDraw();
+
+				gdft2_2_sin.beginDraw();
+				sdft2.set("time", time);
+				sdft2.set("resolution", parseFloat(gdft2_2_sin.width), parseFloat(gdft2_2_sin.height));
+				sdft2.set("audio", (times === 1) ? gdft1_cos.texture : gdft2_1_sin.texture);
+				sdft2.set("times", times);
+				g.shader(sdft2);
+				g.rect(0, 0, gdft2_2_sin.width, gdft2_2_cos.height);
+				gdft2_2_sin.endDraw();
+			}
+
+			gshader_prev.set("time", time);
+			gshader_prev.set("resolution", parseFloat(g.width), parseFloat(g.height));
+			gshader_prev.set("audio1", gdft2_2_cos.texture);
+			gshader_prev.set("audio2", gdft2_2_sin.texture);
+			gshader_prev.set("sample_rate", input_sample_rate);
+			gshader_prev.set("samples", gdft2_2_cos.height);
+			g.shader(gshader_prev);
+			g.rect(0, 0, g.width, g.height);
+
+			g.render();
+
+			for (let i = 0; i < input.length; i++) {
+				output[i] = input[i];
+			}
+		}
+	</script>
+</head>
+
+<body style="position:fixed; top:0; left:0; width:100%; height:100%;">
+	<canvas id="canvas" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
+	<div id="mes" onclick="" style="position:fixed; top:0; left:0; width:100%; height:100%;">
+		<div style="margin: 10px auto;">
+			<p style="text-align:center">画面をクリックしてください ( 音が鳴ります ) </p>
+		</div>
+	</div>
+</body>
+
+</html>

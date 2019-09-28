@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Select Text Encode -->
+	<meta content="ja" http-equiv="Content-Language" />
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<!-- Set Resolution -->
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- full screen on iOS browser -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<!-- title -->
+	<title>NodeShader</title>
+
+	<script type="text/javascript" src="../dst/hydrangea.js"></script>
+	<script type="text/javascript">
+		const Graphics = HydrangeaJS.WebGL.Graphics;
+
+		let g;
+		let texture;
+		let time = 0.0;
+		let fps = 60.0;
+		let mousex, mousey;
+
+		document.addEventListener("DOMContentLoaded", (event) => {
+			g = new Graphics(document.getElementById("canvas"));
+			window.addEventListener("resize", (event) => {
+				g.resize(window.innerWidth, window.innerHeight);
+			});
+			g.resize(window.innerWidth, window.innerHeight);
+			g.gapp.canvas.addEventListener("mousemove", (e) => {
+				mousex = e.clientX;
+				mousey = e.clientY;
+			});
+
+			texture = g.createTexture(200, 200);
+			texture.loadImg("./lenna.png");
+
+			time = 0.0;
+
+			loop();
+		});
+
+		const loop = () => {
+			time += 1.0 / fps; // Count time
+
+			g.clear();
+
+			g.fill(1.0, 0.0, 0.0);
+			g.stroke(0.0, 0.0, 1.0);
+			g.pushMatrix();
+			g.translate(mousex, mousey, 0);
+			g.scale(3, -3, 1);
+			g.image(texture, -100, -100, 200, 200);
+			g.popMatrix();
+			g.render();
+
+			setTimeout(loop, 1000.0 / fps);
+		}
+	</script>
+</head>
+
+<body style="position:fixed; top:0; left:0; width:100%; height:100%;">
+	<canvas id="canvas" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
+</body>
+
+</html>

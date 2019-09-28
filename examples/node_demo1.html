@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Select Text Encode -->
+	<meta content="ja" http-equiv="Content-Language" />
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<!-- Set Resolution -->
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- full screen on iOS browser -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<!-- title -->
+	<title>NodeShader</title>
+
+	<script type="text/javascript" src="../dst/hydrangea.js"></script>
+	<script type="text/javascript">
+		const RootComponent = HydrangeaJS.GUI.Component.RootComponent;
+		const DraggableComponent = HydrangeaJS.GUI.Component.DraggableComponent;
+		const Node = HydrangeaJS.GUI.Templates.Node;
+		const NodeParam = HydrangeaJS.GUI.Templates.NodeParam;
+
+		const Applet = class {
+			constructor(canvas) {
+				this.fps = 60.0;
+
+				this.root = new RootComponent(canvas);
+				window.addEventListener("resize", (e) => {
+					this.root.graphics.resize(window.innerWidth, window.innerHeight);
+				});
+				this.root.graphics.resize(window.innerWidth, window.innerHeight);
+
+				const draggableComponent = new DraggableComponent();
+				this.root.add(draggableComponent);
+
+				let node1 = draggableComponent.add(new Node("hoge", 30 + 170 * 0, 30));
+				node1.inputs.add(new NodeParam("empty", "hoge"));
+				node1.inputs.add(new NodeParam("empty", "hoge"));
+				node1.inputs.add(new NodeParam("empty", "hoge"));
+				node1.inputs.add(new NodeParam("empty", "hoge"));
+				node1.outputs.add(new NodeParam("empty", "hoge"));
+				node1.outputs.add(new NodeParam("empty", "hoge"));
+				node1.outputs.add(new NodeParam("empty", "hoge"));
+
+				let node2 = draggableComponent.add(new Node("hoge", 30 + 170 * 1, 30));
+				node2.inputs.add(new NodeParam("empty", "hoge"));
+				node2.outputs.add(new NodeParam("empty", "hoge"));
+				node2.outputs.add(new NodeParam("empty", "hoge"));
+
+				let node3 = draggableComponent.add(new Node("hoge", 30 + 170 * 2, 30));
+				node3.inputs.add(new NodeParam("empty", "hoge"));
+				node3.inputs.add(new NodeParam("empty", "hoge"));
+				node3.outputs.add(new NodeParam("empty", "hoge"));
+				node3.outputs.add(new NodeParam("empty", "hoge"));
+				node3.outputs.add(new NodeParam("empty", "hoge"));
+
+				let node4 = draggableComponent.add(new Node("hoge", 30 + 170 * 3, 30));
+				node4.inputs.add(new NodeParam("empty", "hoge"));
+				node4.outputs.add(new NodeParam("empty", "hoge"));
+				node4.outputs.add(new NodeParam("empty", "hoge"));
+
+				let node5 = draggableComponent.add(new Node("hoge", 30 + 170 * 4, 30));
+				node5.inputs.add(new NodeParam("empty", "hoge"));
+				node5.inputs.add(new NodeParam("empty", "hoge"));
+				node5.inputs.add(new NodeParam("empty", "hoge"));
+				node5.inputs.add(new NodeParam("empty", "hoge"));
+				node5.inputs.add(new NodeParam("empty", "hoge"));
+				node5.outputs.add(new NodeParam("empty", "hoge"));
+
+				let node6 = draggableComponent.add(new Node("hoge", 30 + 170 * 5, 30));
+				node6.inputs.add(new NodeParam("empty", "hoge"));
+
+				let node7 = draggableComponent.add(new Node("hoge", 30 + 170 * 6, 30));
+				node7.outputs.add(new NodeParam("empty", "hoge"));
+
+				this.loop();
+			}
+
+			loop() {
+				this.root.graphics.clear();
+
+				this.root.graphics.stroke(1.0, 1.0, 1.0, 0.0);
+				this.root.graphics.fill(1.0, 1.0, 1.0, 1.0);
+				this.root.graphics.rect(0, 0, this.root.w, this.root.h);
+
+				this.root.update();
+				this.root.draw();
+
+				setTimeout(this.loop.bind(this), 1000.0 / this.fps);
+			}
+		};
+		document.addEventListener("DOMContentLoaded", (event) => {
+			let canvas = document.getElementById("canvas");
+			node_editor = new Applet(canvas);
+		});
+	</script>
+</head>
+
+<body style="position:fixed; top:0; left:0; width:100%; height:100%;">
+	<canvas id="canvas" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
+</body>
+</html>

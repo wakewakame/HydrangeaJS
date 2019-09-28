@@ -4,8 +4,7 @@ import { Shader } from "./shader.js";
 
 export const Shape = class {
 	constructor(app) {
-		if (typeof (app) != "object") { console.error("argument type is wrong."); return; }
-		if (!(app instanceof App)) { console.error("argument type is wrong."); return; }
+		if (!(app instanceof App)) throw new TypeError();
 		this.app = app;
 		this.gl = this.app.gl;
 		this.mode;
@@ -28,8 +27,7 @@ export const Shape = class {
 	}
 	// シェイプの描画関数
 	drawShape(shader) {
-		if (typeof (shader) != "object") { console.error("argument type is wrong."); return; }
-		if (!(shader instanceof Shader)) { console.error("argument type is wrong."); return; }
+		if (!(shader instanceof Shader)) throw new TypeError();
 		if (!("position" in shader.attributes_location)) { console.error("attributes position does not exist in vectex shader."); return; }
 		if (!("uv" in shader.attributes_location)) { console.error("attributes uv does not exist in vectex shader."); return; }
 		if (!("color" in shader.attributes_location)) { console.error("attributes color does not exist in vectex shader."); return; }

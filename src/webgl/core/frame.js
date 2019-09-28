@@ -3,8 +3,7 @@ import { Texture } from "./texture.js";
 
 export const Frame = class {
 	constructor(app, width, height, format = null, type = null) {
-		if (typeof (app) != "object") { console.error("argument type is wrong."); return; }
-		if (!(app instanceof App)) { console.error("argument type is wrong."); return; }
+		if (!(app instanceof App)) throw new TypeError();
 		this.app = app;
 		this.gl = this.app.gl;
 		this.frame_buffer = null;
@@ -13,7 +12,7 @@ export const Frame = class {
 		this.resize(width, height, format, type);
 	}
 	resize(width, height, format = null, type = null) {
-		if ((typeof (width) != "number") || (typeof (height) != "number")) { console.error("argument type is wrong."); return; }
+		if ((typeof (width) != "number") || (typeof (height) != "number")) throw new TypeError();
 		if ((this.width === width) && (this.height === height)) return;
 		this.width = width;
 		this.height = height;

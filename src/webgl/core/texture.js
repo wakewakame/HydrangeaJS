@@ -2,8 +2,7 @@ import { App } from "./app.js";
 
 export const Texture = class {
 	constructor(app, width, height, format = null, type = null) {
-		if (typeof (app) != "object") { console.error("argument type is wrong."); return; }
-		if (!(app instanceof App)) { console.error("argument type is wrong."); return; }
+		if (!(app instanceof App)) throw new TypeError();
 		this.app = app;
 		this.gl = this.app.gl;
 		this.texture_buffer = null;
@@ -12,7 +11,7 @@ export const Texture = class {
 		this.resize(width, height, format, type);
 	}
 	resize(width = 1, height = 1, format = null, type = null) {
-		if ((typeof (width) != "number") || (typeof (height) != "number")) { console.error("argument type is wrong."); return; }
+		if ((typeof (width) != "number") || (typeof (height) != "number")) throw new TypeError();
 		if ((this.width === width) && (this.height === height)) return;
 		this.width = width;
 		this.height = height;
@@ -31,7 +30,7 @@ export const Texture = class {
 		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 	}
 	update(pixels, left = 0, top = 0, width = this.width, height = this.height) {
-		if ((typeof (left) != "number") || (typeof (top) != "number") || (typeof (width) != "number") || (typeof (height) != "number")) { console.error("argument type is wrong."); return; }
+		if ((typeof (left) != "number") || (typeof (top) != "number") || (typeof (width) != "number") || (typeof (height) != "number")) throw new TypeError();
 		if (this.texture_buffer === null) return;
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 		this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, left, top, width, height, this.format, this.type, pixels);

@@ -3,8 +3,7 @@ import { Texture } from "./texture.js";
 
 export const Shader = class {
 	constructor(app) {
-		if (typeof (app) != "object") { console.error("argument type is wrong."); return; }
-		if (!(app instanceof App)) { console.error("argument type is wrong."); return; }
+		if (!(app instanceof App)) throw new TypeError();
 		this.app = app;
 		this.gl = this.app.gl;
 		this.program = null;
@@ -45,8 +44,8 @@ export const Shader = class {
 	}
 	loadShader(vertex_source, fragment_source) {
 		// check the type of code is string
-		if (!(typeof (vertex_source) === "string" || vertex_source instanceof String)) { console.error("argument type is wrong."); return; }
-		if (!(typeof (fragment_source) === "string" || fragment_source instanceof String)) { console.error("argument type is wrong."); return; }
+		if (typeof (vertex_source) !== "string") throw new TypeError();
+		if (typeof (fragment_source) !== "string") throw new TypeError();
 		// compile shaders
 		// vertex
 		let vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER); // create empty Shader object
@@ -107,39 +106,39 @@ export const Shader = class {
 	//  set(name, [mat]);
 	//  set(name, texture(GLCore.Texture));
 	set(name, x, y = null, z = null, w = null) {
-		if (!(name in this.uniforms_type)) { console.error("argument type is wrong."); return; }
+		if (!(name in this.uniforms_type)) throw new RangeError();
 		this.gl.useProgram(this.program);
 		switch (this.uniforms_type[name]) {
 			case "int":
-				if (typeof (x) != "number") { console.error("argument type is wrong."); return; }
+				if (typeof (x) != "number") throw new TypeError();
 				this.gl.uniform1i(this.uniforms_location[name], x);
 				break;
 			case "ivec2":
-				if ((typeof (x) != "number") || (typeof (y) != "number")) { console.error("argument type is wrong."); return; }
+				if ((typeof (x) != "number") || (typeof (y) != "number")) throw new TypeError();
 				this.gl.uniform2i(this.uniforms_location[name], x, y);
 				break;
 			case "ivec3":
-				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number")) { console.error("argument type is wrong."); return; }
+				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number")) throw new TypeError();
 				this.gl.uniform3i(this.uniforms_location[name], x, y, z);
 				break;
 			case "ivec4":
-				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number") || (typeof (w) != "number")) { console.error("argument type is wrong."); return; }
+				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number") || (typeof (w) != "number")) throw new TypeError();
 				this.gl.uniform4i(this.uniforms_location[name], x, y, z, w);
 				break;
 			case "float":
-				if (typeof (x) != "number") { console.error("argument type is wrong."); return; }
+				if (typeof (x) != "number") throw new TypeError();
 				this.gl.uniform1f(this.uniforms_location[name], x);
 				break;
 			case "vec2":
-				if ((typeof (x) != "number") || (typeof (y) != "number")) { console.error("argument type is wrong."); return; }
+				if ((typeof (x) != "number") || (typeof (y) != "number")) throw new TypeError();
 				this.gl.uniform2f(this.uniforms_location[name], x, y);
 				break;
 			case "vec3":
-				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number")) { console.error("argument type is wrong."); return; }
+				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number")) throw new TypeError();
 				this.gl.uniform3f(this.uniforms_location[name], x, y, z);
 				break;
 			case "vec4":
-				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number") || (typeof (w) != "number")) { console.error("argument type is wrong."); return; }
+				if ((typeof (x) != "number") || (typeof (y) != "number") || (typeof (z) != "number") || (typeof (w) != "number")) throw new TypeError();
 				this.gl.uniform4f(this.uniforms_location[name], x, y, z, w);
 				break;
 			case "mat2":
@@ -152,8 +151,8 @@ export const Shader = class {
 				this.gl.uniformMatrix4fv(this.uniforms_location[name], false, x);
 				break;
 			case "sampler2D":
-				if (!(x instanceof Texture)) { console.error("this class isn't GLCore.Texture."); return; }
-				if (x.texture_buffer === null) { console.error("this texture is empty."); return; }
+				if (!(x instanceof Texture)) throw new TypeError();
+				if (x.texture_buffer === null) throw new ReferenceError("this texture is empty.");
 				this.gl.activeTexture(this.gl["TEXTURE" + this.texture_unit_num[name].toString()]);
 				this.gl.bindTexture(this.gl.TEXTURE_2D, x.texture_buffer);
 				this.gl.uniform1i(this.uniforms_location[name], this.texture_unit_num[name]);

@@ -33,15 +33,15 @@
 				});
 				this.root.graphics.resize(window.innerWidth, window.innerHeight);
 
-				const nodeCanvas = new NodeCanvas();
-				this.root.add(nodeCanvas);
+				this.nodeCanvas = new NodeCanvas();
+				this.root.add(this.nodeCanvas);
 
-				let node0 = nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
-				let node1 = nodeCanvas.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
-				let node2 = nodeCanvas.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150));
-				let node3 = nodeCanvas.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
-				let node4 = nodeCanvas.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150));
-				let node5 = nodeCanvas.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
+				let node0 = this.nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
+				let node1 = this.nodeCanvas.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
+				let node2 = this.nodeCanvas.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150));
+				let node3 = this.nodeCanvas.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
+				let node4 = this.nodeCanvas.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150));
+				let node5 = this.nodeCanvas.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
 
 				node2.loadShader(
 `precision highp float;
@@ -87,7 +87,7 @@ void main(void){
 				node4.inputs.childs[0].output = node3.outputs.childs[0];
 				node4.inputs.childs[1].output = node3.outputs.childs[1];
 				node5.inputs.childs[0].output = node4.outputs.childs[0];
-				nodeCanvas.activeChilds(node5);
+				this.nodeCanvas.activeChilds(node5);
 
 				document.body.addEventListener('dragover', (e) => {
 					e.stopPropagation();
@@ -99,7 +99,7 @@ void main(void){
 					e.preventDefault();
 					for(let file of e.dataTransfer.files) {
 						let url = window.URL.createObjectURL(file);
-						nodeCanvas.add(new PictureNode(file.name, url, 30 + 170 * 0, 30));
+						this.nodeCanvas.add(new PictureNode(file.name, url, 30 + 170 * 0, 30));
 					}
 				}, false);
 
@@ -139,12 +139,8 @@ void main(void){
 				this.root.graphics.fill(1.0, 1.0, 1.0, 1.0);
 				this.root.graphics.rect(0, 0, this.root.w, this.root.h);
 
-				if (this.root.childs.length > 0) for (let n of this.root.childs[0].childs) {
-					if(n.finishJob) n.reset();
-				}
-				if (this.root.childs.length > 0) for (let n of this.root.childs[0].childs) {
-					if(!n.finishJob) n.job();
-				}
+				this.nodeCanvas.reset();
+				this.nodeCanvas.job();
 
 				this.root.update();
 

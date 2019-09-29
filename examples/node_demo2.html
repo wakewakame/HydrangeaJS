@@ -46,14 +46,19 @@
 				node2.loadShader(
 `precision highp float;
 uniform sampler2D texture;
+uniform vec2 texture_resolution;
 uniform float time;
 varying vec2 vUv;
 
 void main(void){
-	vec2 p = vUv;
-	p -= vec2(0.5);
+	vec2 area = vec2(
+		texture_resolution.x / exp2(ceil(log2(texture_resolution.x))),
+		texture_resolution.y / exp2(ceil(log2(texture_resolution.y)))
+	);
+	vec2 p = vUv * area;
+	p -= area * 0.5;
 	p *= mat2(cos(time), -sin(time), sin(time), cos(time));
-	p += vec2(0.5);
+	p += area * 0.5;
 	gl_FragColor = texture2D(texture, p);
 }`
 				);
@@ -61,18 +66,26 @@ void main(void){
 				node4.loadShader(
 `precision highp float;
 uniform sampler2D texture;
+uniform vec2 texture_resolution;
 varying vec2 vUv;
 
 void main(void){
-	gl_FragColor = texture2D(texture, vUv);
-	gl_FragColor.rgb += vec3(vUv.x, 1.0 - sqrt(vUv.x * vUv.x + vUv.y * vUv.y), vUv.y);
+	vec2 area = vec2(
+		texture_resolution.x / exp2(ceil(log2(texture_resolution.x))),
+		texture_resolution.y / exp2(ceil(log2(texture_resolution.y)))
+	);
+	vec2 p = vUv * area;
+	gl_FragColor = texture2D(texture, p);
+	gl_FragColor.rgb += vec3(p.x, 1.0 - sqrt(p.x * p.x + p.y * p.y), p.y);
 }`
 				);
 
 				node2.inputs.childs[0].output = node1.outputs.childs[0];
-				node2.inputs.childs[1].output = node0.outputs.childs[0];
+				node2.inputs.childs[1].output = node1.outputs.childs[1];
+				node2.inputs.childs[2].output = node0.outputs.childs[0];
 				node3.inputs.childs[0].output = node2.outputs.childs[0];
 				node4.inputs.childs[0].output = node3.outputs.childs[0];
+				node4.inputs.childs[1].output = node3.outputs.childs[1];
 				node5.inputs.childs[0].output = node4.outputs.childs[0];
 				nodeCanvas.activeChilds(node5);
 

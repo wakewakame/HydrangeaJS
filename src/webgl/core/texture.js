@@ -13,8 +13,8 @@ export const Texture = class {
 	resize(width = 1, height = 1, format = null, type = null) {
 		if ((typeof (width) !== "number") || (typeof (height) !== "number")) throw new TypeError();
 		if ((this.width === width) && (this.height === height)) return;
-		this.width = width;
-		this.height = height;
+		this.width = Math.max(1, width);
+		this.height = Math.max(1, height);
 		this.pow2_width = parseInt(Math.pow(2, Math.ceil(Math.log2(this.width))));
 		this.pow2_height = parseInt(Math.pow(2, Math.ceil(Math.log2(this.height))));
 		this.format = (format === null) ? this.gl.RGBA : format;

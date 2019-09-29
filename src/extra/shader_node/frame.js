@@ -13,12 +13,14 @@ export const FrameNode = class extends Node {
 		};
 		this.inputShaderNodeParam = null;
 		this.outputShaderNodeParam = null;
+		this.outputResolutionNodeParam = null;
 		this.previewShader = null;
 	}
 	setup(){
 		super.setup();
 		this.inputShaderNodeParam = this.inputs.add(new ValueNodeParam("shader", "input"));
 		this.outputShaderNodeParam = this.outputs.add(new ValueNodeParam("frame", "output"));
+		this.outputResolutionNodeParam = this.outputs.add(new ValueNodeParam("vec2", "output"));
 		this.frameBuffer = this.graphics.createFrame(
 			this.frameBufferState.width,
 			this.frameBufferState.height,
@@ -69,6 +71,8 @@ export const FrameNode = class extends Node {
 		let shader = this.inputs.childs[0].output.value.shader;
 		if (shader === null) return;
 		this.outputShaderNodeParam.value.texture = this.frameBuffer.texture;
+		this.outputResolutionNodeParam.value.x = this.frameBuffer.texture.width;
+		this.outputResolutionNodeParam.value.y = this.frameBuffer.texture.height;
 		this.frameBuffer.beginDraw();
 		let tmp_current_shader = this.graphics.current_shader;
 		this.graphics.shader(shader);

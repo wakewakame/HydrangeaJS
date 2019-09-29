@@ -34,11 +34,11 @@
 				this.root.add(draggableComponent);
 
 				let node0 = draggableComponent.add(new TimeNode(30 + 250 * 0, 300));
-				let node1 = draggableComponent.add(new PictureNode("hoge", "./lenna.png", 30 + 250 * 0, 30));
-				let node2 = draggableComponent.add(new ShaderNode  ("hoge", 30 + 250 * 1, 150));
-				let node3 = draggableComponent.add(new FrameNode  ("hoge", 30 + 250 * 2, 30, 512, 512));
-				let node4 = draggableComponent.add(new ShaderNode  ("hoge", 30 + 250 * 3, 150));
-				let node5 = draggableComponent.add(new FrameNode  ("hoge", 30 + 250 * 4, 30, 512, 512));
+				let node1 = draggableComponent.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
+				let node2 = draggableComponent.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150));
+				let node3 = draggableComponent.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
+				let node4 = draggableComponent.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150));
+				let node5 = draggableComponent.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
 
 				node2.loadShader(`
 					precision highp float;
@@ -52,7 +52,6 @@
 						p *= mat2(cos(time), -sin(time), sin(time), cos(time));
 						p += vec2(0.5);
 						gl_FragColor = texture2D(texture, p);
-						gl_FragColor.rgb += vec3(vUv.x, 1.0 - sqrt(vUv.x * vUv.x + vUv.y * vUv.y), vUv.y);
 					}
 				`);
 

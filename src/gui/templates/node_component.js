@@ -19,14 +19,22 @@ export const NodeParam = class extends Component {
 		this.inner_shape = null;
 		this.outer_shape = null;
 		this.arrow_shape = null;
+
+		this.textTextures = { type: null, name: null };
 	}
 	setup(){
 		this.update_shape();
+		this.textTextures.type = this.graphics.createTexture(1, 1);
+		this.textTextures.name = this.graphics.createTexture(1, 1);
+		this.textTextures.type.loadText(this.type, "#FF007B", "bold " + 100 + "px monospace");
+		this.textTextures.name.loadText(this.name, "#303030", "bold " + 100 + "px monospace");
 	}
 	deleted(){
 		if (this.inner_shape !== null) this.inner_shape.delete();
 		if (this.outer_shape !== null) this.outer_shape.delete();
 		if (this.arrow_shape !== null) this.arrow_shape.delete();
+		if (this.textTextures.type !== null) this.textTextures.type.delete;
+		if (this.textTextures.name !== null) this.textTextures.name.delete;
 	}
 	update_shape(){
 		this.inner_shape = new GLCore.Shape(this.graphics.gapp);
@@ -37,16 +45,16 @@ export const NodeParam = class extends Component {
 		this.inner_shape.beginShape(this.inner_shape.gl.TRIANGLE_FAN);
 		this.inner_shape.color(1.0, 1.0, 1.0, 1.0);
 		for(let i = 0; i < div; i++) this.inner_shape.vertex(
-			0.5 * this.size + 0.5 * (this.size - weight + this.hit * 0.5 * this.size) * Math.cos(2.0 * Math.PI * i / div),
-			0.5 * this.size + 0.5 * (this.size - weight + this.hit * 0.5 * this.size) * Math.sin(2.0 * Math.PI * i / div),
+			0.5 * this.size + 0.5 * (this.size - weight + this.hit * 0.4 * this.size) * Math.cos(2.0 * Math.PI * i / div),
+			0.5 * this.size + 0.5 * (this.size - weight + this.hit * 0.4 * this.size) * Math.sin(2.0 * Math.PI * i / div),
 			0.0
 		);
 		this.inner_shape.endShape();
 		this.outer_shape.beginShape(this.outer_shape.gl.TRIANGLE_FAN);
 		this.outer_shape.color(0.3, 0.3, 0.3, 1.0);
 		for(let i = 0; i < div; i++) this.outer_shape.vertex(
-			0.5 * this.size + 0.5 * (this.size + weight + this.hit * 0.5 * this.size) * Math.cos(2.0 * Math.PI * i / div),
-			0.5 * this.size + 0.5 * (this.size + weight + this.hit * 0.5 * this.size) * Math.sin(2.0 * Math.PI * i / div),
+			0.5 * this.size + 0.5 * (this.size + weight + this.hit * 0.4 * this.size) * Math.cos(2.0 * Math.PI * i / div),
+			0.5 * this.size + 0.5 * (this.size + weight + this.hit * 0.4 * this.size) * Math.sin(2.0 * Math.PI * i / div),
 			0.0
 		);
 		this.outer_shape.endShape();
@@ -92,6 +100,29 @@ export const NodeParam = class extends Component {
 			if(this.isInput) this.bezier(0.0, this.size / 2.0, this.vector.arr[0], this.vector.arr[1]);
 			else this.bezier(this.vector.arr[0], this.vector.arr[1], this.size, this.size / 2.0);
 		}
+		this.graphics.pushMatrix();
+		this.graphics.translate(this.w + 6.0, this.h / 2.0);
+		this.graphics.scale(0.16 * this.hit, 0.16 * this.hit);
+		this.graphics.translate(0.0, 0.0 - 8.0 / 0.16);
+		this.graphics.fill(1.0, 1.0, 1.0, 0.5);
+		this.graphics.stroke(0.0, 0.0, 0.0, 0.0);
+		this.graphics.rect(
+			-20.0,
+			-20.0,
+			this.textTextures.type.width + this.textTextures.name.width + 70.0,
+			Math.max(this.textTextures.type.height, this.textTextures.name.height) + 40.0
+		);
+		this.graphics.image(
+			this.textTextures.type,
+			0, 0,
+			this.textTextures.type.width, this.textTextures.type.height,
+		);
+		this.graphics.image(
+			this.textTextures.name,
+			this.textTextures.type.width + 30.0, 0,
+			this.textTextures.name.width, this.textTextures.name.height,
+		);
+		this.graphics.popMatrix();
 	}
 	bezier(x1, y1, x2, y2) {
 		this.graphics.bezier(
@@ -107,7 +138,7 @@ export const NodeParam = class extends Component {
 		this.graphics.popMatrix();
 	}
 	mouseEvent(type, x, y, start_x, start_y) {
-		if (type === "HIT") { this.hit = Math.min(1.0, this.hit + 0.5); this.update_shape(); }
+		if (type === "HIT") { this.hit = Math.min(1.25, this.hit + 0.5); this.update_shape(); }
 		if (this.isInput) {
 			if (type === "UP" && this.output === null) this.vector = null;
 			if (type === "DRAG") {

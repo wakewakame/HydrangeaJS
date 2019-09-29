@@ -15,7 +15,7 @@
 	<script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" integrity="sha256-5Xkhn3k/1rbXB+Q/DX/2RuAtaB4dRRyQvMs83prFjpM=" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 		const RootComponent = HydrangeaJS.GUI.Component.RootComponent;
-		const DraggableComponent = HydrangeaJS.GUI.Component.DraggableComponent;
+		const NodeCanvas = HydrangeaJS.GUI.Templates.NodeCanvas;
 		const TimeNode = HydrangeaJS.Extra.ShaderNode.TimeNode;
 		const PictureNode = HydrangeaJS.Extra.ShaderNode.PictureNode;
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
@@ -33,15 +33,15 @@
 				});
 				this.root.graphics.resize(window.innerWidth, window.innerHeight);
 
-				const draggableComponent = new DraggableComponent();
-				this.root.add(draggableComponent);
+				const nodeCanvas = new NodeCanvas();
+				this.root.add(nodeCanvas);
 
-				let node0 = draggableComponent.add(new TimeNode(30 + 250 * 0, 300));
-				let node1 = draggableComponent.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
-				let node2 = draggableComponent.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150));
-				let node3 = draggableComponent.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
-				let node4 = draggableComponent.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150));
-				let node5 = draggableComponent.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
+				let node0 = nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
+				let node1 = nodeCanvas.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
+				let node2 = nodeCanvas.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150));
+				let node3 = nodeCanvas.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
+				let node4 = nodeCanvas.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150));
+				let node5 = nodeCanvas.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
 
 				node2.loadShader(
 `precision highp float;
@@ -74,7 +74,7 @@ void main(void){
 				node3.inputs.childs[0].output = node2.outputs.childs[0];
 				node4.inputs.childs[0].output = node3.outputs.childs[0];
 				node5.inputs.childs[0].output = node4.outputs.childs[0];
-				draggableComponent.activeChilds(node5);
+				nodeCanvas.activeChilds(node5);
 
 				document.body.addEventListener('dragover', (e) => {
 					e.stopPropagation();
@@ -86,8 +86,7 @@ void main(void){
 					e.preventDefault();
 					for(let file of e.dataTransfer.files) {
 						let url = window.URL.createObjectURL(file);
-						console.log(url);
-						draggableComponent.add(new PictureNode("hoge", url, 30 + 170 * 0, 30));
+						nodeCanvas.add(new PictureNode(file.name, url, 30 + 170 * 0, 30));
 					}
 				}, false);
 
@@ -128,10 +127,10 @@ void main(void){
 				this.root.graphics.rect(0, 0, this.root.w, this.root.h);
 
 				if (this.root.childs.length > 0) for (let n of this.root.childs[0].childs) {
-					n.reset();
+					if(n.finishJob) n.reset();
 				}
 				if (this.root.childs.length > 0) for (let n of this.root.childs[0].childs) {
-					n.job();
+					if(!n.finishJob) n.job();
 				}
 
 				this.root.update();

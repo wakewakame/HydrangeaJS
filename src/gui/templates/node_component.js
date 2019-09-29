@@ -1,5 +1,6 @@
 import { Component } from "../component/component.js";
 import { SwingComponent } from "../component/swing_component.js";
+import { DraggableComponent } from "../component/draggable_component.js";
 import { GLCore } from "../../webgl/core/core.js";
 import { GLMath } from "../../webgl/utils/math.js";
 
@@ -248,7 +249,6 @@ export const Node = class extends SwingComponent {
 		this.textTextures.name.loadText(this.name, "#303030", "bold " + 180 + "px monospace");
 	}
 	job(){
-		if(this.finishJob) return;
 		this.finishJob = true;
 		for(let c of this.inputs.childs){
 			let p = c.output;
@@ -293,5 +293,21 @@ export const Node = class extends SwingComponent {
 		);
 		this.graphics.popMatrix();
 		super.draw();
+	}
+};
+
+export const NodeCanvas = class extends DraggableComponent {
+	constructor() {
+		super();
+	}
+	reset() {
+		for (let n of this.childs) {
+			if(n.finishJob) n.reset();
+		}
+	}
+	job() {
+		for (let n of this.childs) {
+			if(!n.finishJob) n.job();
+		}
 	}
 };

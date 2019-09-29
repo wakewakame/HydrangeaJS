@@ -21,4 +21,8 @@ export const PictureNode = class extends FrameNode {
 		this.inputs.remove(this.inputShaderNodeParam);
 		img.delete();
 	}
+	job() {
+		super.job();
+		this.outputShaderNodeParam.value.texture = this.frameBuffer.texture;
+	}
 };

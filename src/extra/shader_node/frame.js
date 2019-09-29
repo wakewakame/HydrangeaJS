@@ -60,7 +60,7 @@ export const FrameNode = class extends Node {
 	}
 	job(){
 		super.job();
-		this.outputShaderNodeParam.value.texture = this.frameBuffer.texture;
+		this.outputShaderNodeParam.value.texture = null;
 		if (
 			(this.inputs.childs.length !== 1) ||
 			(!(this.inputs.childs[0] instanceof ValueNodeParam)) ||
@@ -68,6 +68,7 @@ export const FrameNode = class extends Node {
 		) return;
 		let shader = this.inputs.childs[0].output.value.shader;
 		if (shader === null) return;
+		this.outputShaderNodeParam.value.texture = this.frameBuffer.texture;
 		this.frameBuffer.beginDraw();
 		let tmp_current_shader = this.graphics.current_shader;
 		this.graphics.shader(shader);

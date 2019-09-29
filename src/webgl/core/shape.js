@@ -28,9 +28,9 @@ export const Shape = class {
 	// シェイプの描画関数
 	drawShape(shader) {
 		if (!(shader instanceof Shader)) throw new TypeError();
-		if (!("position" in shader.attributes_location)) { console.error("attributes position does not exist in vectex shader."); return; }
-		if (!("uv" in shader.attributes_location)) { console.error("attributes uv does not exist in vectex shader."); return; }
-		if (!("color" in shader.attributes_location)) { console.error("attributes color does not exist in vectex shader."); return; }
+		if (!shader.attributes_location.hasOwnProperty("position")) { console.error("attributes position does not exist in vectex shader."); return; }
+		if (!shader.attributes_location.hasOwnProperty("uv")) { console.error("attributes uv does not exist in vectex shader."); return; }
+		if (!shader.attributes_location.hasOwnProperty("color")) { console.error("attributes color does not exist in vectex shader."); return; }
 		this.gl.useProgram(shader.program);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertices_buffer);
 		this.gl.enableVertexAttribArray(shader.attributes_location["position"]);

@@ -8,7 +8,7 @@ export const EventListener = class {
 		// check the type of func is function
 		if (typeof (func) !== "function") return;
 		// check the name is registered
-		if (!(name in this.events)) this.events[name] = [];
+		if (!this.events.hasOwnProperty(name)) this.events[name] = [];
 		// add event listener
 		this.events[name].push(func);
 	}
@@ -16,7 +16,7 @@ export const EventListener = class {
 		// check the type of name is string
 		if (typeof (name) !== "string") return;
 		// check the name is registered
-		if (!(name in this.events)) return;
+		if (!this.events.hasOwnProperty(name)) return;
 		// process all events
 		for (let f of this.events[name]) {
 			f(arg);
@@ -26,7 +26,7 @@ export const EventListener = class {
 		// check the type of name is string
 		if (typeof (name) !== "string") return;
 		// check the name is registered
-		if (!(name in this.events)) return;
+		if (!this.events.hasOwnProperty(name)) return;
 		// reset event listener
 		this.events[name] = [];
 	}

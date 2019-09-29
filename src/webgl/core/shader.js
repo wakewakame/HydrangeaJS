@@ -85,10 +85,10 @@ export const Shader = class {
 		this.attributes_type = this.findVariable(vertex_source, "attribute");
 		this.uniforms_type = this.findVariable(vertex_source + "\n" + fragment_source, "uniform");
 		let current_texture_unit = 0;
-		for (let i in this.attributes_type) {
+		for (let i of Object.keys(this.attributes_type)) {
 			this.attributes_location[i] = this.gl.getAttribLocation(this.program, i);
 		}
-		for (let i in this.uniforms_type) {
+		for (let i of Object.keys(this.uniforms_type)) {
 			this.uniforms_location[i] = this.gl.getUniformLocation(this.program, i);
 			if (this.uniforms_type[i] === "sampler2D") {
 				this.texture_unit_num[i] = parseInt(current_texture_unit);
@@ -106,7 +106,7 @@ export const Shader = class {
 	//  set(name, [mat]);
 	//  set(name, texture(GLCore.Texture));
 	set(name, x, y = null, z = null, w = null) {
-		if (!(name in this.uniforms_type)) throw new RangeError();
+		if (!this.uniforms_type.hasOwnProperty(name)) throw new RangeError();
 		this.gl.useProgram(this.program);
 		switch (this.uniforms_type[name]) {
 			case "int":

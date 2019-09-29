@@ -202,6 +202,13 @@ export const NodeParams = class extends Component {
 		this.h += this.size + this.gap;
 		return super.add(child);
 	}
+	remove(child){
+		let index = this.childs.findIndex((c) => c === child);
+		if (index !== -1) {
+			this.h -= this.size + this.gap;
+		}
+		super.remove(child);
+	}
 	checkHit(px, py){
 		for(let c of this.childs){
 			if(c.checkHit(px - this.x, py - this.y)) return true;

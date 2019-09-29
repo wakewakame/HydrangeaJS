@@ -12,6 +12,7 @@
 	<title>NodeShader</title>
 
 	<script type="text/javascript" src="../dst/hydrangea.js"></script>
+	<script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" integrity="sha256-5Xkhn3k/1rbXB+Q/DX/2RuAtaB4dRRyQvMs83prFjpM=" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 		const RootComponent = HydrangeaJS.GUI.Component.RootComponent;
 		const DraggableComponent = HydrangeaJS.GUI.Component.DraggableComponent;
@@ -19,6 +20,8 @@
 		const PictureNode = HydrangeaJS.Extra.ShaderNode.PictureNode;
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
+		let editor = null;
+		let active_node = null;
 
 		const Applet = class {
 			constructor(canvas) {
@@ -40,31 +43,31 @@
 				let node4 = draggableComponent.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150));
 				let node5 = draggableComponent.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
 
-				node2.loadShader(`
-					precision highp float;
-					uniform sampler2D texture;
-					uniform float time;
-					varying vec2 vUv;
+				node2.loadShader(
+`precision highp float;
+uniform sampler2D texture;
+uniform float time;
+varying vec2 vUv;
 
-					void main(void){
-						vec2 p = vUv;
-						p -= vec2(0.5);
-						p *= mat2(cos(time), -sin(time), sin(time), cos(time));
-						p += vec2(0.5);
-						gl_FragColor = texture2D(texture, p);
-					}
-				`);
+void main(void){
+	vec2 p = vUv;
+	p -= vec2(0.5);
+	p *= mat2(cos(time), -sin(time), sin(time), cos(time));
+	p += vec2(0.5);
+	gl_FragColor = texture2D(texture, p);
+}`
+				);
 
-				node4.loadShader(`
-					precision highp float;
-					uniform sampler2D texture;
-					varying vec2 vUv;
+				node4.loadShader(
+`precision highp float;
+uniform sampler2D texture;
+varying vec2 vUv;
 
-					void main(void){
-						gl_FragColor = texture2D(texture, vUv);
-						gl_FragColor.rgb += vec3(vUv.x, 1.0 - sqrt(vUv.x * vUv.x + vUv.y * vUv.y), vUv.y);
-					}
-				`);
+void main(void){
+	gl_FragColor = texture2D(texture, vUv);
+	gl_FragColor.rgb += vec3(vUv.x, 1.0 - sqrt(vUv.x * vUv.x + vUv.y * vUv.y), vUv.y);
+}`
+				);
 
 				node2.inputs.childs[0].output = node1.outputs.childs[0];
 				node2.inputs.childs[1].output = node0.outputs.childs[0];
@@ -88,6 +91,28 @@
 					}
 				}, false);
 
+				editor = ace.edit("editor");
+				editor.setTheme("ace/theme/tomorrow");
+				editor.getSession().setMode("ace/mode/glsl");
+				editor.commands.addCommand({
+					Name : "shader editor",
+					bindKey: {
+						win : "Ctrl-S",
+						mac : "Command-S"
+					},
+					exec: function(editor_2) {
+						editor_compile(editor);
+					}
+				});
+				editor.on("change", (e) => {
+					const nodes = this.root.childs[0].childs;
+					if (nodes.length > 0) {
+						if (nodes[0] instanceof ShaderNode) {
+							console.log(nodes[0].loadShader(editor.getValue()));
+						}
+					}
+				});
+
 				this.loop();
 			}
 
@@ -99,6 +124,20 @@
 				this.root.graphics.rect(0, 0, this.root.w, this.root.h);
 
 				this.root.update();
+
+
+				if (editor !== null) {
+					const nodes = this.root.childs[0].childs;
+					if (nodes.length > 0 && active_node !== nodes[0]) {
+						if (nodes[0] instanceof ShaderNode) {
+							editor.setValue(nodes[0].fragmentShader);
+						}
+						else editor.setValue("");
+						editor.gotoLine(1, 0);
+						active_node = nodes[0];
+					}
+				}
+
 				this.root.draw();
 
 				setTimeout(this.loop.bind(this), 1000.0 / this.fps);
@@ -113,5 +152,6 @@
 
 <body style="position:fixed; top:0; left:0; width:100%; height:100%;">
 	<canvas id="canvas" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
+	<div id="editor" style="position:fixed; top:70%; left:0%; width:100%; height:30%; background: #FFFFFF80;"></div>
 </body>
 </html>

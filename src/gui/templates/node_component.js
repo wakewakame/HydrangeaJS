@@ -4,10 +4,12 @@ import { GLCore } from "../../webgl/core/core.js";
 import { GLMath } from "../../webgl/utils/math.js";
 
 export const NodeParam = class extends Component {
-	constructor(type, name) {
+	constructor(type, name, r = 0.3, g = 0.3, b = 0.3) {
 		super(0.0, 0.0, 0.0, 0.0);
 		this.type = type;
 		this.name = name;
+
+		this.color = {r: r, g: g, b: b};
 
 		this.node = null;
 		this.output = null;
@@ -51,7 +53,7 @@ export const NodeParam = class extends Component {
 		);
 		this.inner_shape.endShape();
 		this.outer_shape.beginShape(this.outer_shape.gl.TRIANGLE_FAN);
-		this.outer_shape.color(0.3, 0.3, 0.3, 1.0);
+		this.outer_shape.color(this.color.r, this.color.g, this.color.b, 1.0);
 		for(let i = 0; i < div; i++) this.outer_shape.vertex(
 			0.5 * this.size + 0.5 * (this.size + weight + this.hit * 0.4 * this.size) * Math.cos(2.0 * Math.PI * i / div),
 			0.5 * this.size + 0.5 * (this.size + weight + this.hit * 0.4 * this.size) * Math.sin(2.0 * Math.PI * i / div),

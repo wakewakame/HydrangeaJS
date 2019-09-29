@@ -248,6 +248,7 @@ export const Node = class extends SwingComponent {
 		this.textTextures.name.loadText(this.name, "#303030", "bold " + 180 + "px monospace");
 	}
 	job(){
+		if(this.finishJob) return;
 		this.finishJob = true;
 		for(let c of this.inputs.childs){
 			let p = c.output;

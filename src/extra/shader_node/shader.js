@@ -43,7 +43,10 @@ export const ShaderNode = class extends Node {
 		super.job();
 		this.outputFrameNodeParam.value.shader = this.shader;
 		for(let c of this.inputs.childs) {
-			if(c.output === null) continue;
+			if(c.output === null) {
+				if (c.type === "frame") this.outputFrameNodeParam.value.shader = null;
+				continue;
+			}
 			switch(c.type){
 				case "int":
 				case "float":
@@ -88,6 +91,10 @@ export const ShaderNode = class extends Node {
 					);
 					break;
 				case "frame":
+					if (c.output.value.texture === null) {
+						this.outputFrameNodeParam.value.shader = null;
+						continue;
+					}
 					this.shader.set(
 						c.name,
 						c.output.value.texture

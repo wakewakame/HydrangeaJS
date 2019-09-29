@@ -67,6 +67,7 @@ export const FrameNode = class extends Node {
 			(this.inputs.childs[0].output === null)
 		) return;
 		let shader = this.inputs.childs[0].output.value.shader;
+		if (shader === null) return;
 		this.frameBuffer.beginDraw();
 		let tmp_current_shader = this.graphics.current_shader;
 		this.graphics.shader(shader);

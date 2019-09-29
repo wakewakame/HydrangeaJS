@@ -16,10 +16,6 @@ export const TimeNode = class extends Node {
 	}
 	update(){
 		super.update();
-		if (this.parent.childs[0] === this)	{
-			this.reset();
-			this.job();
-		}
 	}
 	draw(){
 		super.draw();

@@ -108,7 +108,11 @@ void main(void){
 					const nodes = this.root.childs[0].childs;
 					if (nodes.length > 0) {
 						if (nodes[0] instanceof ShaderNode) {
-							console.log(nodes[0].loadShader(editor.getValue()));
+							const code = editor.getValue();
+							if (
+								code !== "" &&
+								code !== nodes[0].fragmentShader
+							) console.log(nodes[0].loadShader(code));
 						}
 					}
 				});
@@ -123,8 +127,14 @@ void main(void){
 				this.root.graphics.fill(1.0, 1.0, 1.0, 1.0);
 				this.root.graphics.rect(0, 0, this.root.w, this.root.h);
 
-				this.root.update();
+				if (this.root.childs.length > 0) for (let n of this.root.childs[0].childs) {
+					n.reset();
+				}
+				if (this.root.childs.length > 0) for (let n of this.root.childs[0].childs) {
+					n.job();
+				}
 
+				this.root.update();
 
 				if (editor !== null) {
 					const nodes = this.root.childs[0].childs;

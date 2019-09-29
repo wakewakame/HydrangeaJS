@@ -178,8 +178,9 @@ export const NodeParams = class extends Component {
 };
 
 export const Node = class extends SwingComponent {
-	constructor(name, x, y) {
+	constructor(type, name, x, y) {
 		super(x, y, 140.0, 0.0);
+		this.type = type;
 		this.name = name;
 
 		this.paramSize = 20.0;
@@ -188,12 +189,23 @@ export const Node = class extends SwingComponent {
 
 		this.inputs = null;
 		this.outputs = null;
+
+		this.textTextures = { type: null, name: null };
+	}
+	deleted(){
+		if (this.textTextures.type !== null) this.textTextures.type.delete;
+		if (this.textTextures.name !== null) this.textTextures.name.delete;
+		super.deleted();
 	}
 	setup(){
 		super.setup();
 		this.inputs = new NodeParams(0.0 - this.paramSize / 2.0, 0, this.paramSize, this.paramGap, true, this);
 		this.outputs = new NodeParams(this.w - this.paramSize / 2.0, 0, this.paramSize, this.paramGap, false, this);
 		this.add(this.inputs); this.add(this.outputs);
+		this.textTextures.type = this.graphics.createTexture(1, 1);
+		this.textTextures.name = this.graphics.createTexture(1, 1);
+		this.textTextures.type.loadText(this.type, "#FF007B", "bold " + 100 + "px monospace");
+		this.textTextures.name.loadText(this.name, "#303030", "bold " + 180 + "px monospace");
 	}
 	job(){
 		this.finishJob = true;
@@ -225,6 +237,20 @@ export const Node = class extends SwingComponent {
 	draw(){
 		this.inputs.x = 0.0 - 0.5 * this.paramSize; this.inputs.y = 0.5 * (this.h - this.inputs.h);
 		this.outputs.x = this.w - 0.5 * this.paramSize; this.outputs.y = 0.5 * (this.h - this.outputs.h);
+		this.graphics.pushMatrix();
+		this.graphics.translate(0.0, this.h + 4.0);
+		this.graphics.scale(0.16, 0.16);
+		this.graphics.image(
+			this.textTextures.name,
+			0, 0,
+			this.textTextures.name.width, this.textTextures.name.height,
+		);
+		this.graphics.image(
+			this.textTextures.type,
+			0, this.textTextures.name.height,
+			this.textTextures.type.width, this.textTextures.type.height,
+		);
+		this.graphics.popMatrix();
 		super.draw();
 	}
 };

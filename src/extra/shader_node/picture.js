@@ -4,7 +4,7 @@ import { FrameNode } from "./frame.js";
 
 export const PictureNode = class extends FrameNode {
 	constructor(name, img_url, x, y) {
-		super(name, x, y, 1, 1);
+		super(name, x, y);
 		this.img_url = img_url;
 		this.frameBuffer = null;
 	}

@@ -70,6 +70,9 @@ export const Texture = class {
 		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 		this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, this.text_canvas);
+		this.gl.generateMipmap(this.gl.TEXTURE_2D);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 	}
 	delete() {

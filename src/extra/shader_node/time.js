@@ -2,8 +2,8 @@ import { Node } from "../../gui/templates/node_component.js";
 import { ValueNodeParam } from "./param.js";
 
 export const TimeNode = class extends Node {
-	constructor(name, x, y) {
-		super(name, x, y);
+	constructor(x, y) {
+		super("float", "time", x, y);
 		this.outputFloatNodeParam = null;	}
 	setup(){
 		super.setup();
@@ -23,8 +23,5 @@ export const TimeNode = class extends Node {
 	}
 	draw(){
 		super.draw();
-		this.graphics.fill(1.0, 0.0, 0.0, 1.0);
-		this.graphics.stroke(0.0, 0.0, 0.0, 0.0);
-		this.graphics.rect(10, 10, 20, 20);
 	}
 };

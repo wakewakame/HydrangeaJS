@@ -3,7 +3,7 @@ import { ValueNodeParam } from "./param.js";
 
 export const ShaderNode = class extends Node {
 	constructor(name, x, y) {
-		super(name, x, y);
+		super("shader", name, x, y);
 		this.shader = null;
 		this.inputFrameNodeParam = null;
 		this.outputFrameNodeParam = null;

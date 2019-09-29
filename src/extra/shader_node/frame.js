@@ -2,8 +2,8 @@ import { Node } from "../../gui/templates/node_component.js";
 import { ValueNodeParam } from "./param.js";
 
 export const FrameNode = class extends Node {
-	constructor(name, x, y, width = 512, height = 512, format = null, type = null) {
-		super(name, x, y);
+	constructor(name, x, y, width = 1, height = 1, format = null, type = null) {
+		super("frame", name, x, y);
 		this.frameBuffer = null;
 		this.frameBufferState = {
 			width: width,

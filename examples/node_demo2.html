@@ -20,7 +20,6 @@
 		const PictureNode = HydrangeaJS.Extra.ShaderNode.PictureNode;
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
-		let editor = null;
 		let active_node = null;
 
 		const Applet = class {
@@ -33,7 +32,33 @@
 				});
 				this.root.graphics.resize(window.innerWidth, window.innerHeight);
 
-				this.nodeCanvas = new NodeCanvas();
+				this.editorElement = document.getElementById("editor");
+				this.editor = ace.edit(this.editorElement.id);
+				this.editor.setTheme("ace/theme/tomorrow");
+				this.editor.getSession().setMode("ace/mode/glsl");
+				this.editor.on("change", (e) => {
+					const nodes = this.root.childs[0].childs;
+					if (nodes.length > 0) {
+						if (nodes[0] instanceof ShaderNode) {
+							const code = this.editor.getValue();
+							if (
+								code !== "" &&
+								code !== nodes[0].fragmentShader
+							) console.log(nodes[0].loadShader(code));
+						}
+					}
+				});
+
+				const NodeCanvasExt = class extends NodeCanvas{
+					constructor(editorElement) { super(); this.editorElement = editorElement; }
+					mouseEvent(type, x, y, start_x, start_y){
+						super.mouseEvent(type, x, y, start_x, start_y);
+						if (type === "DOWN") this.editorElement.style["pointer-events"] = "none";
+						if (type === "UP")   this.editorElement.style["pointer-events"] = "auto";
+					}
+				};
+
+				this.nodeCanvas = new NodeCanvasExt(this.editorElement);
 				this.root.add(this.nodeCanvas);
 
 				let node0 = this.nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
@@ -103,32 +128,6 @@ void main(void){
 					}
 				}, false);
 
-				editor = ace.edit("editor");
-				editor.setTheme("ace/theme/tomorrow");
-				editor.getSession().setMode("ace/mode/glsl");
-				editor.commands.addCommand({
-					Name : "shader editor",
-					bindKey: {
-						win : "Ctrl-S",
-						mac : "Command-S"
-					},
-					exec: function(editor_2) {
-						editor_compile(editor);
-					}
-				});
-				editor.on("change", (e) => {
-					const nodes = this.root.childs[0].childs;
-					if (nodes.length > 0) {
-						if (nodes[0] instanceof ShaderNode) {
-							const code = editor.getValue();
-							if (
-								code !== "" &&
-								code !== nodes[0].fragmentShader
-							) console.log(nodes[0].loadShader(code));
-						}
-					}
-				});
-
 				this.loop();
 			}
 
@@ -144,14 +143,14 @@ void main(void){
 
 				this.root.update();
 
-				if (editor !== null) {
+				if (this.editor !== null) {
 					const nodes = this.root.childs[0].childs;
 					if (nodes.length > 0 && active_node !== nodes[0]) {
 						if (nodes[0] instanceof ShaderNode) {
-							editor.setValue(nodes[0].fragmentShader);
+							this.editor.setValue(nodes[0].fragmentShader);
 						}
-						else editor.setValue("");
-						editor.gotoLine(1, 0);
+						else this.editor.setValue("");
+						this.editor.gotoLine(1, 0);
 						active_node = nodes[0];
 					}
 				}

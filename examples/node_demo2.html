@@ -20,7 +20,6 @@
 		const PictureNode = HydrangeaJS.Extra.ShaderNode.PictureNode;
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
-		let active_node = null;
 
 		const Applet = class {
 			constructor(canvas) {
@@ -33,28 +32,42 @@
 				this.root.graphics.resize(window.innerWidth, window.innerHeight);
 
 				this.editorElement = document.getElementById("editor");
-				this.editor = ace.edit(this.editorElement.id);
-				this.editor.setTheme("ace/theme/tomorrow");
-				this.editor.getSession().setMode("ace/mode/glsl");
-				this.editor.on("change", (e) => {
-					const nodes = this.root.childs[0].childs;
-					if (nodes.length > 0) {
-						if (nodes[0] instanceof ShaderNode) {
-							const code = this.editor.getValue();
-							if (
-								code !== "" &&
-								code !== nodes[0].fragmentShader
-							) console.log(nodes[0].loadShader(code));
-						}
-					}
-				});
 
 				const NodeCanvasExt = class extends NodeCanvas{
-					constructor(editorElement) { super(); this.editorElement = editorElement; }
+					constructor(editorElement) {
+						super();
+						this.editorElement = editorElement;
+						this.editor = ace.edit(this.editorElement.id);
+						this.editor.setTheme("ace/theme/tomorrow");
+						this.editor.setOptions({
+							fontSize: "14pt"
+						});
+						this.editor.getSession().setMode("ace/mode/glsl");
+						this.editor.on("change", (e) => {
+							if (this.childs.length > 0) {
+								if (this.childs[0] instanceof ShaderNode) {
+									const code = this.editor.getValue();
+									if (
+										code !== "" &&
+										code !== this.childs[0].fragmentShader
+									) console.log(this.childs[0].loadShader(code));
+								}
+							}
+						});
+						this.editorElement.style["display"] = "none";
+					}
 					mouseEvent(type, x, y, start_x, start_y){
 						super.mouseEvent(type, x, y, start_x, start_y);
 						if (type === "DOWN") this.editorElement.style["pointer-events"] = "none";
 						if (type === "UP")   this.editorElement.style["pointer-events"] = "auto";
+						if (type === "DOWN") {
+							this.editorElement.style["display"] = "none";
+							if (this.childs.length > 0 && this.childs[0] instanceof ShaderNode && this.childs[0].checkHit(x, y)) {
+								this.editorElement.style["display"] = "inline";
+								this.editor.setValue(this.childs[0].fragmentShader);
+								this.editor.gotoLine(1, 0);
+							}
+						}
 					}
 				};
 
@@ -142,19 +155,6 @@ void main(void){
 				this.nodeCanvas.job();
 
 				this.root.update();
-
-				if (this.editor !== null) {
-					const nodes = this.root.childs[0].childs;
-					if (nodes.length > 0 && active_node !== nodes[0]) {
-						if (nodes[0] instanceof ShaderNode) {
-							this.editor.setValue(nodes[0].fragmentShader);
-						}
-						else this.editor.setValue("");
-						this.editor.gotoLine(1, 0);
-						active_node = nodes[0];
-					}
-				}
-
 				this.root.draw();
 
 				setTimeout(this.loop.bind(this), 1000.0 / this.fps);
@@ -169,6 +169,6 @@ void main(void){
 
 <body style="position:fixed; top:0; left:0; width:100%; height:100%;">
 	<canvas id="canvas" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
-	<div id="editor" style="position:fixed; top:70%; left:0%; width:100%; height:30%; background: #FFFFFF80;"></div>
+	<div id="editor" style="position:fixed; top:50%; left:0%; width:100%; height:50%; background: #FFFFFF80;"></div>
 </body>
 </html>

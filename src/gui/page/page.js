@@ -44,10 +44,14 @@ export const Page = class {
 			this.rootComponent.graphics.resize(window.innerWidth, window.innerHeight);
 
 			this.canvasElement.addEventListener("mousedown", (e) => {
-				this.childElements.forEach((e) => { e.style["pointer-events"] = "none"; });
+				this.childElements.forEach((e) => {
+					if (e !== this.canvasElement) e.style["pointer-events"] = "none";
+				});
 			});
 			this.canvasElement.addEventListener("mouseup", (e) => {
-				this.childElements.forEach((e) => { e.style["pointer-events"] = "auto"; });
+				this.childElements.forEach((e) => {
+					if (e !== this.canvasElement) e.style["pointer-events"] = "auto";
+				});
 			});
 
 			document.body.addEventListener('dragover', (e) => {
@@ -86,7 +90,7 @@ export const Page = class {
 	}
 
 	addElement(name = "div", left = 0.0, top = 0.0, right = 1.0, bottom = 1.0, style = {}){
-		let element = document.createElement("canvas");
+		let element = document.createElement(name);
 		element.style["position"] = "fixed";
 		element.style["left"] = "" + (left * 100.0) + "%";
 		element.style["top"] = "" + (top * 100.0) + "%";

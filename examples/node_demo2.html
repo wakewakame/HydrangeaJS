@@ -14,73 +14,61 @@
 	<script type="text/javascript" src="../dst/hydrangea.js"></script>
 	<script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" integrity="sha256-5Xkhn3k/1rbXB+Q/DX/2RuAtaB4dRRyQvMs83prFjpM=" crossorigin="anonymous"></script>
 	<script type="text/javascript">
-		const RootComponent = HydrangeaJS.GUI.Component.RootComponent;
+		const Page = HydrangeaJS.GUI.Page.Page;
+		const PageEvent = HydrangeaJS.GUI.Page.PageEvent;
 		const NodeCanvas = HydrangeaJS.GUI.Templates.NodeCanvas;
 		const TimeNode = HydrangeaJS.Extra.ShaderNode.TimeNode;
 		const PictureNode = HydrangeaJS.Extra.ShaderNode.PictureNode;
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
 
-		const Applet = class {
-			constructor(canvas) {
-				this.fps = 60.0;
-
-				this.root = new RootComponent(canvas);
-				window.addEventListener("resize", (e) => {
-					this.root.graphics.resize(window.innerWidth, window.innerHeight);
+		const NodeCanvasExt = class extends NodeCanvas{
+			constructor(page) {
+				super();
+				this.editorElement = page.addElement("div", 0.0, 0.5, 1.0, 1.0, {
+					"background": "#FFFFFF80",
+					"display": "none"
 				});
-				this.root.graphics.resize(window.innerWidth, window.innerHeight);
+				this.editorElement.id = "shader_editor";
 
-				const NodeCanvasExt = class extends NodeCanvas{
-					constructor(canvasElement) {
-						super();
-						this.editorElement = document.createElement("div");
-						canvasElement.parentNode.appendChild(this.editorElement);
-						this.editorElement.id = "shader_editor";
-						this.editorElement.style["position"] = "fixed";
-						this.editorElement.style["left"] = "0%";
-						this.editorElement.style["top"] = "50%";
-						this.editorElement.style["width"] = "100%";
-						this.editorElement.style["height"] = "50%";
-						this.editorElement.style["background"] = "#FFFFFF80";
-						this.editorElement.style["display"] = "none";
-
-						this.editor = ace.edit(this.editorElement.id);
-						this.editor.setTheme("ace/theme/tomorrow");
-						this.editor.setOptions({
-							fontSize: "14pt"
-						});
-						this.editor.getSession().setMode("ace/mode/glsl");
-						this.editor.on("change", (e) => {
-							if (this.childs.length > 0) {
-								if (this.childs[0] instanceof ShaderNode) {
-									const code = this.editor.getValue();
-									if (
-										code !== "" &&
-										code !== this.childs[0].compileState.code
-									) this.childs[0].loadShader(code);
-								}
-							}
-						});
-					}
-					mouseEvent(type, x, y, start_x, start_y){
-						super.mouseEvent(type, x, y, start_x, start_y);
-						if (type === "DOWN") this.editorElement.style["pointer-events"] = "none";
-						if (type === "UP")   this.editorElement.style["pointer-events"] = "auto";
-						if (type === "DOWN") {
-							this.editorElement.style["display"] = "none";
-							if (this.childs.length > 0 && this.childs[0] instanceof ShaderNode && this.childs[0].checkHit(x, y)) {
-								this.editorElement.style["display"] = "inline";
-								this.editor.setValue(this.childs[0].compileState.code);
-								this.editor.gotoLine(1, 0);
-							}
+				this.editor = ace.edit(this.editorElement.id);
+				this.editor.setTheme("ace/theme/tomorrow");
+				this.editor.setOptions({
+					fontSize: "14pt"
+				});
+				this.editor.getSession().setMode("ace/mode/glsl");
+				this.editor.on("change", (e) => {
+					if (this.childs.length > 0) {
+						if (this.childs[0] instanceof ShaderNode) {
+							const code = this.editor.getValue();
+							if (
+								code !== "" &&
+								code !== this.childs[0].compileState.code
+							) this.childs[0].loadShader(code);
 						}
 					}
-				};
+				});
+			}
+			mouseEvent(type, x, y, start_x, start_y){
+				super.mouseEvent(type, x, y, start_x, start_y);
+				if (type === "DOWN") {
+					this.editorElement.style["display"] = "none";
+					if (this.childs.length > 0 && this.childs[0] instanceof ShaderNode && this.childs[0].checkHit(x, y)) {
+						this.editorElement.style["display"] = "inline";
+						this.editor.setValue(this.childs[0].compileState.code);
+						this.editor.gotoLine(1, 0);
+					}
+				}
+			}
+		};
 
-				this.nodeCanvas = new NodeCanvasExt(this.root.graphics.gapp.canvas);
-				this.root.add(this.nodeCanvas);
-
+		const OriginalPageEvent = class extends PageEvent {
+			constructor() {
+				super();
+				this.nodeCanvas = null;
+			}
+			init(page) {
+				this.nodeCanvas = page.addComponent(new NodeCanvasExt(page));
 				let node0 = this.nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
 				let node1 = this.nodeCanvas.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
 				let node2 = this.nodeCanvas.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150, 500));
@@ -132,49 +120,19 @@ void main(void){
 				node4.inputs.childs[0].output = node3.outputs.childs[0];
 				node4.inputs.childs[1].output = node3.outputs.childs[1];
 				node5.inputs.childs[0].output = node4.outputs.childs[0];
-				this.nodeCanvas.activeChilds(node5);
-
-				document.body.addEventListener('dragover', (e) => {
-					e.stopPropagation();
-					e.preventDefault();
-					e.dataTransfer.dropEffect = 'copy';
-				}, false);
-				document.body.addEventListener("drop", (e) => {
-					e.stopPropagation();
-					e.preventDefault();
-					for(let file of e.dataTransfer.files) {
-						let url = window.URL.createObjectURL(file);
-						this.nodeCanvas.add(new PictureNode(file.name, url, 30 + 170 * 0, 30));
-					}
-				}, false);
-
-				this.loop();
 			}
-
-			loop() {
-				this.root.graphics.clear();
-
-				this.root.graphics.stroke(1.0, 1.0, 1.0, 0.0);
-				this.root.graphics.fill(1.0, 1.0, 1.0, 1.0);
-				this.root.graphics.rect(0, 0, this.root.w, this.root.h);
-
+			loop(page) {
 				this.nodeCanvas.reset();
 				this.nodeCanvas.job();
-
-				this.root.update();
-				this.root.draw();
-
-				setTimeout(this.loop.bind(this), 1000.0 / this.fps);
 			}
+			dropFiles(page, files) { console.log(files); }
 		};
-		document.addEventListener("DOMContentLoaded", (event) => {
-			let canvas = document.getElementById("canvas");
-			node_editor = new Applet(canvas);
-		});
+
+		const page = new Page(new OriginalPageEvent());
+
+
 	</script>
 </head>
-
-<body style="position:fixed; top:0; left:0; width:100%; height:100%;">
-	<canvas id="canvas" style="position:fixed; left:0; top:0; width:100%; height:100%;"></canvas>
+<body>
 </body>
 </html>

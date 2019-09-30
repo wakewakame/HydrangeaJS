@@ -48,14 +48,14 @@ export const Texture = class {
 		}
 		img.src = src;
 	}
-	loadText(text, color = "#000000", font = "10px sans-serif") {
+	loadText(text, color = "#000000", size = 10, font = "sans-serif", bold = false) {
 		this.text_2d.textAlign = "left";
 		this.text_2d.textBaseline = "top";
 		this.text_2d.fillStyle = color;
-		this.text_2d.font = font;
+		this.text_2d.font = (bold ? "bold " : "") + size + "px " + font;
 		const text_stat = this.text_2d.measureText(text);
 		const text_width = Math.max(1, Math.ceil(text_stat.width));
-		const text_height = Math.max(1, Math.ceil(Math.abs(text_stat.actualBoundingBoxDescent - text_stat.actualBoundingBoxAscent)));
+		const text_height = Math.max(1, size);
 		if ((this.text_canvas.width !== text_width) || (this.text_canvas.height !== text_height)) {
 			this.text_canvas.width = text_width;
 			this.text_canvas.height = text_height;
@@ -64,7 +64,7 @@ export const Texture = class {
 		this.text_2d.textAlign = "left";
 		this.text_2d.textBaseline = "top";
 		this.text_2d.fillStyle = color;
-		this.text_2d.font = font;
+		this.text_2d.font = (bold ? "bold " : "") + size + "px " + font;
 		this.text_2d.fillText(text, 0, 0);
 		this.resize(this.text_canvas.width, this.text_canvas.height);
 		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);

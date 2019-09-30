@@ -34,7 +34,7 @@
 			});
 
 			texture = g.createTexture(20, 20);
-			texture.loadText("げこ🐸", color = "#FF00FF", font = "40px sans-serif"); //, color = "#000000", font = "10px sans-serif");
+			texture.loadText("げこ🐸", "#FF00FF", 40);
 
 			time = 0.0;
 
@@ -46,7 +46,7 @@
 
 			g.clear();
 
-			texture.loadText("げこ🐸" + time, color = "#FF00FF", font = "40px sans-serif"); //, color = "#000000", font = "10px sans-serif");
+			texture.loadText("げこ🐸" + time, "#FF00FF", 40);
 
 			g.fill(1.0, 0.0, 0.0);
 			g.stroke(0.0, 0.0, 1.0);

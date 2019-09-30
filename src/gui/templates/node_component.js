@@ -29,8 +29,8 @@ export const NodeParam = class extends Component {
 		this.update_shape();
 		this.textTextures.type = this.graphics.createTexture(1, 1);
 		this.textTextures.name = this.graphics.createTexture(1, 1);
-		this.textTextures.type.loadText(this.type, "#FF007B", "bold " + 100 + "px monospace");
-		this.textTextures.name.loadText(this.name, "#303030", "bold " + 100 + "px monospace");
+		this.textTextures.type.loadText(this.type, "#FF007B", 100, "monospace", true);
+		this.textTextures.name.loadText(this.name, "#303030", 100, "monospace", true);
 	}
 	deleted(){
 		if (this.inner_shape !== null) this.inner_shape.delete();
@@ -245,8 +245,8 @@ export const Node = class extends SwingComponent {
 		this.add(this.inputs); this.add(this.outputs);
 		this.textTextures.type = this.graphics.createTexture(1, 1);
 		this.textTextures.name = this.graphics.createTexture(1, 1);
-		this.textTextures.type.loadText(this.type, "#FF007B", "bold " + 100 + "px monospace");
-		this.textTextures.name.loadText(this.name, "#303030", "bold " + 180 + "px monospace");
+		this.textTextures.type.loadText(this.type, "#FF007B", 100, "monospace", true);
+		this.textTextures.name.loadText(this.name, "#303030", 180, "monospace", true);
 	}
 	job(){
 		this.finishJob = true;

@@ -1,21 +1,23 @@
 import { Component } from "../component/component.js";
 import { RootComponent } from "../component/root_component.js";
 
+export const PageEvent = class {
+	constructor() {}
+	init(page) {}
+	loop(page) {}
+	dropFiles(page, files) {}
+};
+
 export const Page = class {
 	constructor(
-		initCallback = (page) => {},
-		loopCallback = (page) => {},
-		fps = 60.0,
-		dropCallback = (page, files) => {},
-		SubRootComponent = Component
+		pageEvent = new PageEvent(),
+		fps = 60.0
 	) {
-		this.loopCallback = loopCallback;
-		this.dropCallback = dropCallback;
+		this.pageEvent = pageEvent;
 		this.fps = fps;
 		this.rootElement = null;
 		this.canvasElement = null;
 		this.rootComponent = null;
-		this.subRootComponent = null;
 		this.childElements = [];
 
 		const init = (e) => {
@@ -41,18 +43,12 @@ export const Page = class {
 			});
 			this.rootComponent.graphics.resize(window.innerWidth, window.innerHeight);
 
-			const ExtSubRootComponent = class extends SubRootComponent {
-				constructor(childElements) {
-					super(0, 0, 0, 0);
-					this.childElements = childElements;
-				}
-				mouseEvent(type, x, y, start_x, start_y){
-					super.mouseEvent(type, x, y, start_x, start_y);
-					if (type === "DOWN") this.childElements.forEach((e) => { e.style["pointer-events"] = "none"; });
-					if (type === "UP")   this.childElements.forEach((e) => { e.style["pointer-events"] = "auto"; });
-				}
-			};
-			this.subRootComponent = this.rootComponent.add(new ExtSubRootComponent(this.childElements));
+			this.canvasElement.addEventListener("mousedown", (e) => {
+				this.childElements.forEach((e) => { e.style["pointer-events"] = "none"; });
+			});
+			this.canvasElement.addEventListener("mouseup", (e) => {
+				this.childElements.forEach((e) => { e.style["pointer-events"] = "auto"; });
+			});
 
 			document.body.addEventListener('dragover', (e) => {
 				e.stopPropagation();
@@ -62,10 +58,10 @@ export const Page = class {
 			document.body.addEventListener("drop", (e) => {
 				e.stopPropagation();
 				e.preventDefault();
-				this.dropCallback(this, e.dataTransfer.files);
+				this.pageEvent.dropFiles(this, e.dataTransfer.files);
 			}, false);
 
-			initCallback(this);
+			this.pageEvent.init(this);
 
 			this.loop();
 		};
@@ -81,7 +77,7 @@ export const Page = class {
 		this.rootComponent.graphics.fill(1.0, 1.0, 1.0, 1.0);
 		this.rootComponent.graphics.rect(0, 0, this.rootComponent.w, this.rootComponent.h);
 
-		this.loopCallback(this);
+		this.pageEvent.loop(this);
 
 		this.rootComponent.update();
 		this.rootComponent.draw();
@@ -105,6 +101,6 @@ export const Page = class {
 	}
 
 	addComponent(component){
-		return this.subRootComponent.add(component);
+		return this.rootComponent.add(component);
 	}
 };

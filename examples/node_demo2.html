@@ -21,8 +21,6 @@
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
 
-		let nodeCanvas = null;
-
 		const init = (page) => {
 			const shaderEditorElement = page.addElement("div", 0.0, 0.5, 1.0, 1.0, {
 				"background": "#FFFFFF80",
@@ -46,72 +44,26 @@
 					}
 				}
 			});
-			nodeCanvas = page.addComponent(new NodeCanvas());
-			let node0 = nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
-			let node1 = nodeCanvas.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
-			let node2 = nodeCanvas.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150, 500));
-			let node3 = nodeCanvas.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
-			let node4 = nodeCanvas.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150, 500));
-			let node5 = nodeCanvas.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
+			let node0 = page.addComponent(new TimeNode(30 + 250 * 0, 300));
+			let node1 = page.addComponent(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
+			let node2 = page.addComponent(new ShaderNode  ("rotate", 30 + 250 * 1, 150, 500));
+			let node3 = page.addComponent(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
+			let node4 = page.addComponent(new ShaderNode  ("colorful", 30 + 250 * 3, 150, 500));
+			let node5 = page.addComponent(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
 
-			node2.loadShader(
-`precision highp float;
-uniform sampler2D texture;
-uniform vec2 texture_resolution;
-uniform float time;
-varying vec2 vUv;
-
-void main(void){
-vec2 area = vec2(
-	texture_resolution.x / exp2(ceil(log2(texture_resolution.x))),
-	texture_resolution.y / exp2(ceil(log2(texture_resolution.y)))
-);
-vec2 p = vUv * area;
-p -= area * 0.5;
-p *= mat2(cos(time), -sin(time), sin(time), cos(time));
-p += area * 0.5;
-gl_FragColor = texture2D(texture, p);
-}`
-			);
-
-			node4.loadShader(
-`precision highp float;
-uniform sampler2D texture;
-uniform vec2 texture_resolution;
-varying vec2 vUv;
-
-void main(void){
-vec2 area = vec2(
-	texture_resolution.x / exp2(ceil(log2(texture_resolution.x))),
-	texture_resolution.y / exp2(ceil(log2(texture_resolution.y)))
-);
-vec2 p = vUv * area;
-gl_FragColor = texture2D(texture, p);
-gl_FragColor.rgb += vec3(p.x, 1.0 - sqrt(p.x * p.x + p.y * p.y), p.y);
-}`
-			);
-
-			node2.inputs.childs[0].output = node1.outputs.childs[0];
-			node2.inputs.childs[1].output = node1.outputs.childs[1];
-			node2.inputs.childs[2].output = node0.outputs.childs[0];
-			node3.inputs.childs[0].output = node2.outputs.childs[0];
-			node4.inputs.childs[0].output = node3.outputs.childs[0];
-			node4.inputs.childs[1].output = node3.outputs.childs[1];
-			node5.inputs.childs[0].output = node4.outputs.childs[0];
-			nodeCanvas.activeChilds(node5);
 		};
 		const loop = (page) => {
-			nodeCanvas.reset();
-			nodeCanvas.job();
+			page.subRootComponent.reset();
+			page.subRootComponent.job();
 		};
 		const drop = (page, files) => {
 			for(let file of files) {
 				let url = window.URL.createObjectURL(file);
-				nodeCanvas.add(new PictureNode(file.name, url, 30 + 170 * 0, 30));
+				page.addComponent(new PictureNode(file.name, url, 30 + 170 * 0, 30));
 			}
 		};
 
-		const page = new Page(init, loop, 60.0, drop);
+		const page = new Page(init, loop, 60.0, drop, NodeCanvas);
 	</script>
 </head>
 <body>

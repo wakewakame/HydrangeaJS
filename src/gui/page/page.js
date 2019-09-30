@@ -6,7 +6,8 @@ export const Page = class {
 		initCallback = (page) => {},
 		loopCallback = (page) => {},
 		fps = 60.0,
-		dropCallback = (page, files) => {}
+		dropCallback = (page, files) => {},
+		SubRootComponent = Component
 	) {
 		this.loopCallback = loopCallback;
 		this.dropCallback = dropCallback;
@@ -40,19 +41,10 @@ export const Page = class {
 			});
 			this.rootComponent.graphics.resize(window.innerWidth, window.innerHeight);
 
-			const SubRootComponent = class extends Component {
+			const ExtSubRootComponent = class extends SubRootComponent {
 				constructor(childElements) {
 					super(0, 0, 0, 0);
 					this.childElements = childElements;
-				}
-				update() {
-					this.x = parent.x;
-					this.y = parent.y;
-					this.w = parent.w;
-					this.h = parent.h;
-					this.min_w = parent.min_w;
-					this.min_h = parent.min_h;
-					super.update();
 				}
 				mouseEvent(type, x, y, start_x, start_y){
 					super.mouseEvent(type, x, y, start_x, start_y);
@@ -60,7 +52,7 @@ export const Page = class {
 					if (type === "UP")   this.childElements.forEach((e) => { e.style["pointer-events"] = "auto"; });
 				}
 			};
-			this.subRootComponent = this.rootComponent.add(new SubRootComponent(this.childElements));
+			this.subRootComponent = this.rootComponent.add(new ExtSubRootComponent(this.childElements));
 
 			document.body.addEventListener('dragover', (e) => {
 				e.stopPropagation();

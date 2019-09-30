@@ -31,12 +31,20 @@
 				});
 				this.root.graphics.resize(window.innerWidth, window.innerHeight);
 
-				this.editorElement = document.getElementById("editor");
-
 				const NodeCanvasExt = class extends NodeCanvas{
-					constructor(editorElement) {
+					constructor(canvasElement) {
 						super();
-						this.editorElement = editorElement;
+						this.editorElement = document.createElement("div");
+						canvasElement.parentNode.appendChild(this.editorElement);
+						this.editorElement.id = "shader_editor";
+						this.editorElement.style["position"] = "fixed";
+						this.editorElement.style["left"] = "0%";
+						this.editorElement.style["top"] = "50%";
+						this.editorElement.style["width"] = "100%";
+						this.editorElement.style["height"] = "50%";
+						this.editorElement.style["background"] = "#FFFFFF80";
+						this.editorElement.style["display"] = "none";
+
 						this.editor = ace.edit(this.editorElement.id);
 						this.editor.setTheme("ace/theme/tomorrow");
 						this.editor.setOptions({
@@ -54,7 +62,6 @@
 								}
 							}
 						});
-						this.editorElement.style["display"] = "none";
 					}
 					mouseEvent(type, x, y, start_x, start_y){
 						super.mouseEvent(type, x, y, start_x, start_y);
@@ -71,7 +78,7 @@
 					}
 				};
 
-				this.nodeCanvas = new NodeCanvasExt(this.editorElement);
+				this.nodeCanvas = new NodeCanvasExt(this.root.graphics.gapp.canvas);
 				this.root.add(this.nodeCanvas);
 
 				let node0 = this.nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
@@ -168,7 +175,6 @@ void main(void){
 </head>
 
 <body style="position:fixed; top:0; left:0; width:100%; height:100%;">
-	<canvas id="canvas" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
-	<div id="editor" style="position:fixed; top:50%; left:0%; width:100%; height:50%; background: #FFFFFF80;"></div>
+	<canvas id="canvas" style="position:fixed; left:0; top:0; width:100%; height:100%;"></canvas>
 </body>
 </html>

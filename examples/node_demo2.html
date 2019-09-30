@@ -57,8 +57,8 @@
 									const code = this.editor.getValue();
 									if (
 										code !== "" &&
-										code !== this.childs[0].fragmentShader
-									) console.log(this.childs[0].loadShader(code));
+										code !== this.childs[0].compileState.code
+									) this.childs[0].loadShader(code);
 								}
 							}
 						});
@@ -71,7 +71,7 @@
 							this.editorElement.style["display"] = "none";
 							if (this.childs.length > 0 && this.childs[0] instanceof ShaderNode && this.childs[0].checkHit(x, y)) {
 								this.editorElement.style["display"] = "inline";
-								this.editor.setValue(this.childs[0].fragmentShader);
+								this.editor.setValue(this.childs[0].compileState.code);
 								this.editor.gotoLine(1, 0);
 							}
 						}

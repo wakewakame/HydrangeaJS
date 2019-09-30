@@ -2,12 +2,19 @@ import { Node } from "../../gui/templates/node_component.js";
 import { ValueNodeParam } from "./param.js";
 
 export const ShaderNode = class extends Node {
-	constructor(name, x, y) {
+	constructor(name, x, y, compileLatency = -1) {
 		super("shader", name, x, y);
 		this.shader = null;
 		this.inputFrameNodeParam = null;
 		this.outputFrameNodeParam = null;
-		this.fragmentShader = "";
+		this.compileState = {
+			initialized: false,
+			lastChangeTime: Date.now(),
+			isCompiled: false,
+			code: "",
+			error: "",
+			latency: compileLatency
+		};
 	}
 	setup(){
 		super.setup();
@@ -20,9 +27,29 @@ export const ShaderNode = class extends Node {
 		this.shader.delete();
 	}
 	loadShader(fragmentShader){
-		this.fragmentShader = fragmentShader;
-		let result = this.shader.loadShader(this.shader.default_shader.vertex, this.fragmentShader);
-		if (result !== "") return result;
+		this.compileState = {
+			initialized: this.compileState.initialized,
+			lastChangeTime: Date.now(),
+			isCompiled: false,
+			code: fragmentShader,
+			error: this.compileState.error,
+			latency: this.compileState.latency
+		};
+		this.loadShader_();
+	}
+	loadShader_(){
+		if (
+			(this.compileState.initialized) && (
+				(this.compileState.isCompiled) ||
+				(Date.now() - this.compileState.lastChangeTime < this.compileState.latency)
+			)
+		) return;
+		this.compileState.error = this.shader.loadShader(
+			this.shader.default_shader.vertex, this.compileState.code
+		);
+		this.compileState.initialized = true;
+		this.compileState.isCompiled = true;
+		if (this.compileState.error !== "") return;
 		const inputs_output = {};
 		for(let p of this.inputs.childs.concat()) {
 			inputs_output[p.name] = {type: p.type, output: p.output};
@@ -37,7 +64,10 @@ export const ShaderNode = class extends Node {
 				param.output = inputs_output[key].output;
 			}
 		});
-		return "";
+	}
+	update(){
+		super.update();
+		this.loadShader_();
 	}
 	job(){
 		super.job();

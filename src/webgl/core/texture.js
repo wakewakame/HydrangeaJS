@@ -46,6 +46,7 @@ export const Texture = class {
 			this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 			if (callback !== null) callback();
 		}
+		img.crossorigin = "anonymous";
 		img.src = src;
 	}
 	loadText(text, color = "#000000", size = 10, font = "sans-serif", bold = false) {

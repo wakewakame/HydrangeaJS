@@ -8,6 +8,7 @@ import { DraggableComponent } from "./gui/component/draggable_component.js";
 import { RootComponent } from "./gui/component/root_component.js";
 import { SwingComponent, SwingResizeBox } from "./gui/component/swing_component.js";
 import { NodeCanvas, Node, NodeParams, NodeParam } from "./gui/templates/node_component.js";
+import { Page } from "./gui/page/page.js";
 import { FrameNode } from "./extra/shader_node/frame.js";
 import { ValueNodeParam } from "./extra/shader_node/param.js";
 import { PictureNode } from "./extra/shader_node/picture.js";
@@ -36,6 +37,9 @@ export const HydrangeaJS = {
 			Node: Node,
 			NodeParams: NodeParams,
 			NodeParam: NodeParam
+		},
+		Page: {
+			Page
 		}
 	},
 	Extra: {

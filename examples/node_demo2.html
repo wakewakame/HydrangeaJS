@@ -22,59 +22,120 @@
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
 
-		const NodeCanvasExt = class extends NodeCanvas{
-			constructor(page) {
-				super();
-				this.editorElement = page.addElement("div", 0.0, 0.5, 1.0, 1.0, {
-					"background": "#FFFFFF80",
-					"display": "none"
-				});
-				this.editorElement.id = "shader_editor";
+		const ConfigElement = class{
+			constructor(nodeType = Node){
+				this.nodeCanvasPage = null;
+				this.element = null;
+				this.nodeType = nodeType;
+			}
+			init() {}
+			active(){}
+			canAdapt(node){ return node instanceof this.nodeType; }
+			addElement(name = "div", left = 0.0, top = 0.0, right = 1.0, bottom = 1.0, style = {}){
+				style["display"] = "none";
+				return this.nodeCanvasPage.page.addElement(name, left, top, right, bottom, style);
+			}
+		};
 
-				this.editor = ace.edit(this.editorElement.id);
+		const ShaderConfigElement = class extends ConfigElement{
+			constructor(){
+				super(ShaderNode);
+			}
+			init(){
+				this.element = this.addElement("div", 0.0, 0.5, 1.0, 1.0, {
+					"background": "#FFFFFF80"
+				});
+				this.element.id = "shader_editor";
+				this.editor = ace.edit(this.element.id);
 				this.editor.setTheme("ace/theme/tomorrow");
 				this.editor.setOptions({
 					fontSize: "14pt"
 				});
 				this.editor.getSession().setMode("ace/mode/glsl");
 				this.editor.on("change", (e) => {
-					if (this.childs.length > 0) {
-						if (this.childs[0] instanceof ShaderNode) {
-							const code = this.editor.getValue();
-							if (
-								code !== "" &&
-								code !== this.childs[0].compileState.code
-							) this.childs[0].loadShader(code);
-						}
+					const node = this.nodeCanvasPage.getActiveNode();
+					if (node !== null && this.canAdapt(node)) {
+						const code = this.editor.getValue();
+						if (
+							code !== "" &&
+							code !== node.compileState.code
+						) node.loadShader(code);
 					}
 				});
+			}
+			active(node){
+				this.editor.setValue(node.compileState.code);
+				this.editor.gotoLine(1, 0);
+			}
+		};
+
+		const NodeCanvasPageEvent = class {
+			constructor() {}
+			init(nodeCanvasPage) {}
+			loop(nodeCanvasPage) {}
+			dropFiles(nodeCanvasPage, files) {}
+		};
+
+		const NodeCanvasPage = class extends NodeCanvas{
+			constructor(nodeCanvasPageEvent = new NodeCanvasPageEvent()) {
+				super();
+				this.nodeCanvasPageEvent = nodeCanvasPageEvent;
+				this.configElements = [];
+				const TmpPageEvent = class extends PageEvent{
+					constructor(nodeCanvasPage) {
+						super();
+						this.nodeCanvasPage = nodeCanvasPage;
+					}
+					init(page) {
+						page.addComponent(this.nodeCanvasPage);
+						this.nodeCanvasPage.nodeCanvasPageEvent.init(this.nodeCanvasPage);
+					}
+					loop(page) { this.nodeCanvasPage.nodeCanvasPageEvent.loop(this.nodeCanvasPage); }
+					dropFiles(page, files) {
+						this.nodeCanvasPage.nodeCanvasPageEvent.dropFiles(this.nodeCanvasPage, files);
+					}
+				};
+				this.page = new Page(new TmpPageEvent(this));
+			}
+			addConfigElement(configElement){
+				configElement.nodeCanvasPage = this;
+				this.configElements.push(configElement);
+				configElement.init();
 			}
 			mouseEvent(type, x, y, start_x, start_y){
 				super.mouseEvent(type, x, y, start_x, start_y);
 				if (type === "DOWN") {
-					this.editorElement.style["display"] = "none";
-					if (this.childs.length > 0 && this.childs[0] instanceof ShaderNode && this.childs[0].checkHit(x, y)) {
-						this.editorElement.style["display"] = "inline";
-						this.editor.setValue(this.childs[0].compileState.code);
-						this.editor.gotoLine(1, 0);
+					this.configElements.forEach(e => {
+						e.element.style["display"] = "none";
+					});
+					const node = this.getActiveNode();
+					if (node !== null && node.checkHit(x, y)) {
+						this.configElements.filter(e => e.canAdapt(node)).forEach(e => {
+							e.element.style["display"] = "inline";
+							e.active(node);
+						});
 					}
 				}
 			}
+			getActiveNode(){
+				if (this.childs.length > 0) return this.childs[0];
+				return null;
+			}
 		};
 
-		const OriginalPageEvent = class extends PageEvent {
+		const OriginalNodeCanvasPageEvent = class extends NodeCanvasPageEvent {
 			constructor() {
 				super();
-				this.nodeCanvas = null;
 			}
-			init(page) {
-				this.nodeCanvas = page.addComponent(new NodeCanvasExt(page));
-				let node0 = this.nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
-				let node1 = this.nodeCanvas.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
-				let node2 = this.nodeCanvas.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150, 500));
-				let node3 = this.nodeCanvas.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
-				let node4 = this.nodeCanvas.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150, 500));
-				let node5 = this.nodeCanvas.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
+			init(nodeCanvasPage) {
+				nodeCanvasPage.addConfigElement(new ShaderConfigElement());
+
+				let node0 = nodeCanvasPage.add(new TimeNode(30 + 250 * 0, 300));
+				let node1 = nodeCanvasPage.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
+				let node2 = nodeCanvasPage.add(new ShaderNode  ("rotate", 30 + 250 * 1, 150, 500));
+				let node3 = nodeCanvasPage.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
+				let node4 = nodeCanvasPage.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150, 500));
+				let node5 = nodeCanvasPage.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
 
 				node2.loadShader(
 `precision highp float;
@@ -121,13 +182,13 @@ void main(void){
 				node4.inputs.childs[1].output = node3.outputs.childs[1];
 				node5.inputs.childs[0].output = node4.outputs.childs[0];
 			}
-			loop(page) {
-				this.nodeCanvas.resetAndJob();
+			loop(nodeCanvasPage) {
+				nodeCanvasPage.resetAndJob();
 			}
 			dropFiles(page, files) { console.log(files); }
 		};
 
-		const page = new Page(new OriginalPageEvent());
+		const nodeCanvasPage = new NodeCanvasPage(new OriginalNodeCanvasPageEvent());
 
 
 	</script>

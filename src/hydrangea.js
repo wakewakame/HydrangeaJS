@@ -1,6 +1,6 @@
+import { EventListener } from "./utils/event_listener.js";
 import { Graphics } from "./webgl/graphics.js";
 import { GLCore } from "./webgl/core/core.js";
-import { EventListener } from "./webgl/utils/event_listener.js";
 import { GLMath } from "./webgl/utils/math.js";
 import { Component } from "./gui/component/component.js";
 import { DefaultComponent, ResizeBox } from "./gui/component/default_component.js";
@@ -16,6 +16,9 @@ import { ShaderNode } from "./extra/shader_node/shader.js";
 import { TimeNode } from "./extra/shader_node/time.js";
 
 export const HydrangeaJS = {
+	Utils: {
+		EventListener: EventListener
+	},
 	WebGL: {
 		Graphics: Graphics,
 		GLCore: GLCore,

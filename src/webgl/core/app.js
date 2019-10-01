@@ -1,4 +1,4 @@
-import { EventListener } from "../utils/event_listener.js";
+import { EventListener } from "../../utils/event_listener.js";
 
 export const App = class {
 	constructor(canvas) {

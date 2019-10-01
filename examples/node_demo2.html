@@ -25,6 +25,9 @@
 		const NodeCanvasExt = class extends NodeCanvas{
 			constructor(page) {
 				super();
+
+				this.activeNode = null;
+
 				this.editorElement = page.addElement("div", 0.0, 0.5, 1.0, 1.0, {
 					"background": "#FFFFFF80",
 					"display": "none"
@@ -48,17 +51,24 @@
 						}
 					}
 				});
-			}
-			mouseEvent(type, x, y, start_x, start_y){
-				super.mouseEvent(type, x, y, start_x, start_y);
-				if (type === "DOWN") {
+
+				this.addEventListener("DOWN", e => {
+					this.activeNode = null;
 					this.editorElement.style["display"] = "none";
-					if (this.childs.length > 0 && this.childs[0] instanceof ShaderNode && this.childs[0].checkHit(x, y)) {
+				});
+			}
+			add(component){
+				const ret = super.add(component);
+				component.addEventListener("DOWN", e => {
+					this.activeNode = e.component;
+					this.editorElement.style["display"] = "none";
+					if (this.activeNode instanceof ShaderNode) {
 						this.editorElement.style["display"] = "inline";
-						this.editor.setValue(this.childs[0].compileState.code);
+						this.editor.setValue(this.activeNode.compileState.code);
 						this.editor.gotoLine(1, 0);
 					}
-				}
+				});
+				return ret;
 			}
 		};
 

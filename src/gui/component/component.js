@@ -1,7 +1,9 @@
 import { GLMath } from "../../webgl/utils/math.js";
+import { EventListener } from "../../utils/event_listener.js";
 
-export const Component = class {
+export const Component = class extends EventListener {
 	constructor(x, y, w, h) {
+		super();
 		this.graphics = null;
 		this.parent = null;
 		this.name = "Empty";
@@ -61,6 +63,9 @@ export const Component = class {
 	}
 	mouseEvent(type, x, y, start_x, start_y){
 		if (this.mouseEventToChild(type, x, y, start_x, start_y)) return;
+		this.trigger(type, {
+			component: this, x: x, y: y, start_x: start_x, start_y: start_y
+		});
 		switch(type){
 			case "HIT":
 				break;

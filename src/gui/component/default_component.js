@@ -22,7 +22,6 @@ export const ResizeBox = class extends Component {
 			this.dragStartCompY = this.y;
 			break;
 		case "UP":
-			
 			break;
 		case "CLICK":
 			break;

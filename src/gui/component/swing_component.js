@@ -88,6 +88,9 @@ export const SwingComponent = class extends DefaultComponent {
 	}
 	mouseEvent(type, x, y, start_x, start_y) {
 		if (this.mouseEventToChild(type, x, y, start_x, start_y)) return;
+		this.trigger(type, {
+			component: this, x: x, y: y, start_x: start_x, start_y: start_y
+		});
 		switch(type) {
 		case "HIT":
 			break;

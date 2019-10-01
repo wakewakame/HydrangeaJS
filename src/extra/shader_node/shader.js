@@ -49,7 +49,17 @@ export const ShaderNode = class extends Node {
 		);
 		this.compileState.initialized = true;
 		this.compileState.isCompiled = true;
-		if (this.compileState.error !== "") return;
+		if (this.compileState.error !== "") {
+			if (this.color !== {r: 1.0, g: 0.0, b: 0.2}) {
+				this.color = {r: 1.0, g: 0.0, b: 0.2};
+				this.resize(this.w, this.h);
+			}
+			return;
+		}
+		if (this.color !== {r: 0.3, g: 0.3, b: 0.3}) {
+			this.color = {r: 0.3, g: 0.3, b: 0.3};
+			this.resize(this.w, this.h);
+		}
 		const inputs_output = {};
 		for(let p of this.inputs.childs.concat()) {
 			inputs_output[p.name] = {type: p.type, output: p.output};

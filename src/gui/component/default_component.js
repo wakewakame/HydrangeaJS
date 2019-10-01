@@ -42,12 +42,13 @@ export const ResizeBox = class extends Component {
 };
 
 export const DefaultComponent = class extends Component {
-	constructor(x, y, w, h, r = 12.0){
+	constructor(x, y, w, h, r = 12.0, color = {r: 0.3, g: 0.3, b: 0.3}){
 		super(x, y, w, h);
 		this.name = "Empty Node";
 		this.inner_shape = null;
 		this.outer_shape = null;
 		this.r = r;
+		this.color = color;
 		this.min_w = this.min_h = this.r * 2.0;
 		this.resizeBox = null;
 	}
@@ -111,7 +112,7 @@ export const DefaultComponent = class extends Component {
 		add_vertices(this.inner_shape, weight * 0.5, weight * 0.5, this.w - weight, this.h - weight, this.r, div);
 		this.inner_shape.endShape();
 		this.outer_shape.beginShape(this.outer_shape.gl.TRIANGLE_FAN);
-		this.outer_shape.color(0.3, 0.3, 0.3, 1.0);
+		this.outer_shape.color(this.color.r, this.color.g, this.color.b, 1.0);
 		add_vertices(this.outer_shape, -weight * 0.5, -weight * 0.5, this.w + weight, this.h + weight, this.r + weight, div);
 		this.outer_shape.endShape();
 	}

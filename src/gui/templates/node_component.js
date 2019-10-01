@@ -300,12 +300,10 @@ export const NodeCanvas = class extends DraggableComponent {
 	constructor() {
 		super();
 	}
-	reset() {
+	resetAndJob() {
 		for (let n of this.childs) {
 			if(n.finishJob) n.reset();
 		}
-	}
-	job() {
 		for (let n of this.childs) {
 			if(!n.finishJob) n.job();
 		}

@@ -26,18 +26,18 @@ export const ShaderNode = class extends Node {
 		super.deleted();
 		this.shader.delete();
 	}
-	loadShader(fragmentShader){
+	setCode(code){
 		this.compileState = {
 			initialized: this.compileState.initialized,
 			lastChangeTime: Date.now(),
 			isCompiled: false,
-			code: fragmentShader,
+			code: code,
 			error: this.compileState.error,
 			latency: this.compileState.latency
 		};
-		this.loadShader_();
+		this.setCode_();
 	}
-	loadShader_(){
+	setCode_(){
 		if (
 			(this.compileState.initialized) && (
 				(this.compileState.isCompiled) ||
@@ -77,7 +77,7 @@ export const ShaderNode = class extends Node {
 	}
 	update(){
 		super.update();
-		this.loadShader_();
+		this.setCode_();
 	}
 	job(){
 		super.job();

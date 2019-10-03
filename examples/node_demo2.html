@@ -21,6 +21,7 @@
 		const PictureNode = HydrangeaJS.Extra.ShaderNode.PictureNode;
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
+		const FloatNode = HydrangeaJS.Extra.ShaderNode.FloatNode;
 
 		const NodeCanvasExt = class extends NodeCanvas{
 			constructor(page) {
@@ -42,12 +43,12 @@
 				this.editor.getSession().setMode("ace/mode/glsl");
 				this.editor.on("change", (e) => {
 					if (this.childs.length > 0) {
-						if (this.childs[0] instanceof ShaderNode) {
+						if (this.childs[0].hasOwnProperty("compileState")) {
 							const code = this.editor.getValue();
 							if (
 								code !== "" &&
 								code !== this.childs[0].compileState.code
-							) this.childs[0].loadShader(code);
+							) this.childs[0].setCode(code);
 						}
 					}
 				});
@@ -62,7 +63,7 @@
 				component.addEventListener("DOWN", e => {
 					this.activeNode = e.component;
 					this.editorElement.style["display"] = "none";
-					if (this.activeNode instanceof ShaderNode) {
+					if (this.childs[0].hasOwnProperty("compileState")) {
 						this.editorElement.style["display"] = "inline";
 						this.editor.setValue(this.activeNode.compileState.code);
 						this.editor.gotoLine(1, 0);
@@ -85,8 +86,9 @@
 				let node3 = this.nodeCanvas.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
 				let node4 = this.nodeCanvas.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150, 500));
 				let node5 = this.nodeCanvas.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
+				let node6 = this.nodeCanvas.add(new FloatNode("int", 30 + 250 * 0, 430, 500));
 
-				node2.loadShader(
+				node2.setCode(
 `precision highp float;
 uniform sampler2D texture;
 uniform vec2 texture_resolution;
@@ -106,7 +108,7 @@ void main(void){
 }`
 				);
 
-				node4.loadShader(
+				node4.setCode(
 `precision highp float;
 uniform sampler2D texture;
 uniform vec2 texture_resolution;

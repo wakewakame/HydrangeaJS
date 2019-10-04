@@ -207,6 +207,9 @@ export const NodeParams = class extends Component {
 		let index = this.childs.findIndex((c) => c === child);
 		if (index !== -1) {
 			this.h -= this.size + this.gap;
+			for(let i = index + 1; i < this.childs.length; i++) {
+				this.childs[i].y -= this.size + this.gap;
+			}
 		}
 		super.remove(child);
 	}

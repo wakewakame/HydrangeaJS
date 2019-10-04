@@ -1,21 +1,41 @@
 import { Node } from "../../gui/templates/node_component.js";
 import { ValueNodeParam } from "./param.js";
 
-export const FloatNode = class extends Node {
-	constructor(name, x, y, compileLatency = -1) {
-		super("float", name, x, y);
+export const ValueNode = class extends Node {
+	constructor(type, name, x, y, compileLatency = -1) {
+		super(type, name, x, y);
+		switch(this.type){
+			case "int":
+			case "float":
+			case "ivec2":
+			case "vec2":
+			case "ivec3":
+			case "vec3":
+			case "ivec4":
+			case "vec4":
+				break;
+			default:
+				this.type = "float";
+				break;
+		}
 		this.outputFrameNodeParam = null;
 		this.compileState = {
 			lastChangeTime: Date.now(),
 			isCompiled: false,
-			code: '{"x": 0.0}',
+			code: "",
 			error: "",
 			latency: compileLatency
 		};
 	}
 	setup(){
 		super.setup();
-		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam("float", "output"));
+		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam(this.type, "output"));
+		this.compileState.code = '{';
+		Object.keys(this.outputFrameNodeParam.value).forEach(key => {
+			this.compileState.code += '\n\t"' + key + '": 0.0,';
+		});
+		this.compileState.code = this.compileState.code.slice(0, -1);
+		this.compileState.code += '\n}';
 		this.setCode_();
 	}
 	setCode(code){
@@ -37,11 +57,17 @@ export const FloatNode = class extends Node {
 		this.compileState.error = "";
 		try{
 			const p = JSON.parse(this.compileState.code);
-			if (!p.hasOwnProperty("x")) throw new RangeError('"x" is not defined');
-			this.outputFrameNodeParam.value.x = p["x"];
+			Object.keys(this.outputFrameNodeParam.value).forEach(key => {
+				if (!p.hasOwnProperty(key)) throw new RangeError('"' + key + '" is not defined');
+				if (typeof(p[key]) !== "number") throw new TypeError('"' + key + '" is not number');
+			});
+			Object.keys(this.outputFrameNodeParam.value).forEach(key => {
+				this.outputFrameNodeParam.value[key] = p[key];
+			});
 		}
 		catch(e){
 			this.compileState.error = e.message;
+			console.log(e.message);
 		}
 		
 		this.compileState.isCompiled = true;

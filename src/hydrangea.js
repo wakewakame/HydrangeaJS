@@ -14,7 +14,7 @@ import { ValueNodeParam } from "./extra/shader_node/param.js";
 import { PictureNode } from "./extra/shader_node/picture.js";
 import { ShaderNode } from "./extra/shader_node/shader.js";
 import { TimeNode } from "./extra/shader_node/time.js";
-import { FloatNode } from "./extra/shader_node/value.js";
+import { ValueNode } from "./extra/shader_node/value.js";
 
 export const HydrangeaJS = {
 	Utils: {
@@ -54,7 +54,7 @@ export const HydrangeaJS = {
 			PictureNode: PictureNode,
 			ShaderNode: ShaderNode,
 			TimeNode: TimeNode,
-			FloatNode: FloatNode
+			ValueNode: ValueNode
 		}
 	}
 };

@@ -8,42 +8,53 @@ export const Texture = class {
 		this.texture_buffer = null;
 		this.text_canvas = document.createElement("canvas");
 		this.text_2d = this.text_canvas.getContext("2d");
+		this.format = (format === null) ? this.gl.RGBA : format;
+		this.type = (type === null) ? this.gl.UNSIGNED_BYTE : type;
 		this.resize(width, height, format, type);
 	}
 	resize(width = 1, height = 1, format = null, type = null) {
 		if ((typeof (width) !== "number") || (typeof (height) !== "number")) throw new TypeError();
-		if ((this.width === width) && (this.height === height)) return;
-		this.width = Math.max(1, width);
-		this.height = Math.max(1, height);
+		width = Math.max(1, width);
+		height = Math.max(1, height);
+		if (
+			(this.width === width) && (this.height === height) && 
+			((format === null) || (format === this.texture.format)) &&
+			((type === null) || (type === this.texture.type))
+		) return;
+		this.width = width;
+		this.height = height;
 		this.pow2_width = parseInt(Math.pow(2, Math.ceil(Math.log2(this.width))));
 		this.pow2_height = parseInt(Math.pow(2, Math.ceil(Math.log2(this.height))));
-		this.format = (format === null) ? this.gl.RGBA : format;
-		this.type = (type === null) ? this.gl.UNSIGNED_BYTE : type;
+		this.format = (format === null) ? this.format : format;
+		this.type = (type === null) ? this.type : type;
 		if (this.texture_buffer !== null) this.delete();
 		this.texture_buffer = this.gl.createTexture();
+		const currentTexture = this.gl.getParameter(this.gl.TEXTURE_BINDING_2D);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
 		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.format, this.pow2_width, this.pow2_height, 0, this.format, this.type, null);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, currentTexture);
 	}
 	update(pixels, left = 0, top = 0, width = this.width, height = this.height) {
 		if ((typeof (left) !== "number") || (typeof (top) !== "number") || (typeof (width) !== "number") || (typeof (height) !== "number")) throw new TypeError();
 		if (this.texture_buffer === null) return;
+		const currentTexture = this.gl.getParameter(this.gl.TEXTURE_BINDING_2D);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 		this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, left, top, width, height, this.format, this.type, pixels);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, currentTexture);
 	}
 	loadImg(src, callback = null) {
 		let img = new Image();
 		img.onload = () => {
 			this.resize(img.width, img.height);
 			this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+			const currentTexture = this.gl.getParameter(this.gl.TEXTURE_BINDING_2D);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 			this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, img);
-			this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+			this.gl.bindTexture(this.gl.TEXTURE_2D, currentTexture);
 			if (callback !== null) callback();
 		}
 		img.src = src;
@@ -68,12 +79,13 @@ export const Texture = class {
 		this.text_2d.fillText(text, 0, 0);
 		this.resize(this.text_canvas.width, this.text_canvas.height);
 		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+		const currentTexture = this.gl.getParameter(this.gl.TEXTURE_BINDING_2D);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_buffer);
 		this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, this.text_canvas);
 		this.gl.generateMipmap(this.gl.TEXTURE_2D);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, currentTexture);
 	}
 	delete() {
 		this.gl.deleteTexture(this.texture_buffer);

@@ -21,7 +21,7 @@
 		const PictureNode = HydrangeaJS.Extra.ShaderNode.PictureNode;
 		const ShaderNode = HydrangeaJS.Extra.ShaderNode.ShaderNode;
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
-		const FloatNode = HydrangeaJS.Extra.ShaderNode.FloatNode;
+		const ValueNode = HydrangeaJS.Extra.ShaderNode.ValueNode;
 
 		const NodeCanvasExt = class extends NodeCanvas{
 			constructor(page) {
@@ -86,19 +86,19 @@
 				let node3 = this.nodeCanvas.add(new FrameNode  ("result1", 30 + 250 * 2, 30, 512, 512));
 				let node4 = this.nodeCanvas.add(new ShaderNode  ("colorful", 30 + 250 * 3, 150, 500));
 				let node5 = this.nodeCanvas.add(new FrameNode  ("result2", 30 + 250 * 4, 30, 512, 512));
-				let node6 = this.nodeCanvas.add(new FloatNode("int", 30 + 250 * 0, 430, 500));
+				let node6 = this.nodeCanvas.add(new ValueNode("ivec2", "int", 30 + 250 * 0, 430, 500));
 
 				node2.setCode(
 `precision highp float;
 uniform sampler2D texture;
-uniform vec2 texture_resolution;
+uniform ivec2 texture_resolution;
 uniform float time;
 varying vec2 vUv;
 
 void main(void){
 	vec2 area = vec2(
-		texture_resolution.x / exp2(ceil(log2(texture_resolution.x))),
-		texture_resolution.y / exp2(ceil(log2(texture_resolution.y)))
+		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
+		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
 	);
 	vec2 p = vUv * area;
 	p -= area * 0.5;
@@ -111,13 +111,13 @@ void main(void){
 				node4.setCode(
 `precision highp float;
 uniform sampler2D texture;
-uniform vec2 texture_resolution;
+uniform ivec2 texture_resolution;
 varying vec2 vUv;
 
 void main(void){
 	vec2 area = vec2(
-		texture_resolution.x / exp2(ceil(log2(texture_resolution.x))),
-		texture_resolution.y / exp2(ceil(log2(texture_resolution.y)))
+		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
+		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
 	);
 	vec2 p = vUv * area;
 	gl_FragColor = texture2D(texture, p);

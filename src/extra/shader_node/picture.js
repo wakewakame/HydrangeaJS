@@ -19,12 +19,10 @@ export const PictureNode = class extends FrameNode {
 			this.resizeBox.target.y = this.w * this.frameBuffer.height / this.frameBuffer.width;
 		});
 		this.inputs.remove(this.inputShaderNodeParam);
+		this.inputs.remove(this.inputResolutionNodeParam);
 		img.delete();
 	}
 	job() {
 		super.job();
-		this.outputShaderNodeParam.value.texture = this.frameBuffer.texture;
-		this.outputResolutionNodeParam.value.x = this.frameBuffer.texture.width;
-		this.outputResolutionNodeParam.value.y = this.frameBuffer.texture.height;
 	}
 };

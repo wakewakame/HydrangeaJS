@@ -12,6 +12,7 @@ export const FrameNode = class extends Node {
 			type: type,
 		};
 		this.inputShaderNodeParam = null;
+		this.inputResolutionNodeParam = null;
 		this.outputShaderNodeParam = null;
 		this.outputResolutionNodeParam = null;
 		this.previewShader = null;
@@ -19,8 +20,9 @@ export const FrameNode = class extends Node {
 	setup(){
 		super.setup();
 		this.inputShaderNodeParam = this.inputs.add(new ValueNodeParam("shader", "input"));
+		this.inputResolutionNodeParam = this.inputs.add(new ValueNodeParam("ivec2", "input"));
 		this.outputShaderNodeParam = this.outputs.add(new ValueNodeParam("frame", "output"));
-		this.outputResolutionNodeParam = this.outputs.add(new ValueNodeParam("vec2", "output"));
+		this.outputResolutionNodeParam = this.outputs.add(new ValueNodeParam("ivec2", "output"));
 		this.frameBuffer = this.graphics.createFrame(
 			this.frameBufferState.width,
 			this.frameBufferState.height,
@@ -47,30 +49,32 @@ export const FrameNode = class extends Node {
 		this.previewShader.delete();
 	}
 	resizeFrame(width, height, format = null, type = null){
-		this.frameBufferState = {
-			width: width,
-			height: height,
-			format: format,
-			type: type,
-		};
 		this.frameBuffer.resize(
-			this.frameBufferState.width,
-			this.frameBufferState.height,
-			this.frameBufferState.format,
-			this.frameBufferState.type
+			width,
+			height,
+			format,
+			type
 		);
+		this.frameBufferState = {
+			width: this.frameBuffer.width,
+			height: this.frameBuffer.height,
+			format: this.frameBuffer.texture.format,
+			type: this.frameBuffer.texture.type,
+		};
 	}
 	job(){
 		super.job();
+		if (this.inputResolutionNodeParam.output !== null) {
+			this.frameBuffer.resize(
+				this.inputResolutionNodeParam.output.value.x,
+				this.inputResolutionNodeParam.output.value.y
+			);
+		}
 		this.outputShaderNodeParam.value.texture = this.frameBuffer.texture;
 		this.outputResolutionNodeParam.value.x = this.frameBuffer.texture.width;
 		this.outputResolutionNodeParam.value.y = this.frameBuffer.texture.height;
-		if (
-			(this.inputs.childs.length !== 1) ||
-			(!(this.inputs.childs[0] instanceof ValueNodeParam)) ||
-			(this.inputs.childs[0].output === null)
-		) return;
-		let shader = this.inputs.childs[0].output.value.shader;
+		if (this.inputShaderNodeParam.output === null) return;
+		let shader = this.inputShaderNodeParam.output.value.shader;
 		if (shader === null) return;
 		this.frameBuffer.beginDraw();
 		let tmp_current_shader = this.graphics.current_shader;

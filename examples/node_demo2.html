@@ -10,6 +10,17 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<!-- title -->
 	<title>NodeShader</title>
+	<style type="text/css">
+		.button {
+			background-color: #00000080;
+			color: #FFFFFFFF;
+			cursor: pointer;
+			transition: all 0.15s ease 0s;
+		}
+		.button:hover {
+			background-color: #50505080;
+		}
+	</style>
 
 	<script type="text/javascript" src="../dst/hydrangea.js"></script>
 	<script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" integrity="sha256-5Xkhn3k/1rbXB+Q/DX/2RuAtaB4dRRyQvMs83prFjpM=" crossorigin="anonymous"></script>
@@ -28,6 +39,8 @@
 				super();
 
 				this.activeNode = null;
+
+				this.mode = "select";
 
 				this.editorElement = page.addElement("div", 0.0, 0.5, 1.0, 1.0, {
 					"background": "#FFFFFF80",
@@ -57,6 +70,90 @@
 					this.activeNode = null;
 					this.editorElement.style["display"] = "none";
 				});
+
+				this.ToolBox = page.addElement("div", 0.0, 0.0, 1.0, 0.05, {
+					"background": "#00000080",
+					"width": "200px",
+					"height": "60px",
+				});
+
+				let selectButton = document.createElement("div");
+				selectButton.style["position"] = "absolute";
+				selectButton.style["left"] = "0%";
+				selectButton.style["top"] = "0%";
+				selectButton.style["width"] = "33.333%";
+				selectButton.style["height"] = "100%";
+				selectButton.className = "button";
+				selectButton.addEventListener("click", () => {
+					this.mode = "select";
+				}, false);
+				this.ToolBox.appendChild(selectButton);
+
+				let selectP = document.createElement("p");
+				selectP.innerHTML = "select";
+				selectP.style["color"] = "#FFFFFFFF";
+				selectP.style["text-align"] = "center";
+				selectButton.appendChild(selectP);
+
+				let createButton = document.createElement("div");
+				createButton.style["position"] = "absolute";
+				createButton.style["left"] = "33.333%";
+				createButton.style["top"] = "0%";
+				createButton.style["width"] = "33.333%";
+				createButton.style["height"] = "100%";
+				createButton.className = "button";
+				createButton.addEventListener("click", () => {
+					this.mode = "create";
+				}, false);
+				this.ToolBox.appendChild(createButton);
+
+				let createP = document.createElement("p");
+				createP.innerHTML = "create";
+				createP.style["color"] = "#FFFFFFFF";
+				createP.style["text-align"] = "center";
+				createButton.appendChild(createP);
+
+				let deleteButton = document.createElement("div");
+				deleteButton.style["position"] = "absolute";
+				deleteButton.style["left"] = "66.666%";
+				deleteButton.style["top"] = "0%";
+				deleteButton.style["width"] = "33.333%";
+				deleteButton.style["height"] = "100%";
+				deleteButton.className = "button";
+				deleteButton.addEventListener("click", () => {
+					this.mode = "delete";
+				}, false);
+				this.ToolBox.appendChild(deleteButton);
+
+				let deleteP = document.createElement("p");
+				deleteP.innerHTML = "delete";
+				deleteP.style["color"] = "#FFFFFFFF";
+				deleteP.style["text-align"] = "center";
+				deleteButton.appendChild(deleteP);
+			}
+			mouseEvent(type, x, y, start_x, start_y){
+				super.mouseEvent(type, x, y, start_x, start_y);
+
+				if (type === "CLICK") {
+					switch(this.mode) {
+						case "select":
+							break;
+						case "create":
+							this.add(new ShaderNode  ("shader", x, y, 500));
+							break;
+						case "delete":
+							let node = null;
+							for (let n of this.childs) {
+								if (n.checkHit(x, y)) {
+									node = n;
+									break;
+								}
+							}
+							if (node === null) break;
+							this.remove(node);
+							break;
+					}
+				}
 			}
 			add(component){
 				const ret = super.add(component);

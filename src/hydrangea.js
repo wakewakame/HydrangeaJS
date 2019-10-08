@@ -15,6 +15,7 @@ import { PictureNode } from "./extra/shader_node/picture.js";
 import { ShaderNode } from "./extra/shader_node/shader.js";
 import { TimeNode } from "./extra/shader_node/time.js";
 import { ValueNode } from "./extra/shader_node/value.js";
+import { Audio } from "./extra/audio/audio.js";
 
 export const HydrangeaJS = {
 	Utils: {
@@ -55,6 +56,9 @@ export const HydrangeaJS = {
 			ShaderNode: ShaderNode,
 			TimeNode: TimeNode,
 			ValueNode: ValueNode
+		},
+		Audio: {
+			Audio: Audio
 		}
 	}
 };

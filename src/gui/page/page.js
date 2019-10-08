@@ -11,10 +11,8 @@ export const PageEvent = class {
 export const Page = class {
 	constructor(
 		pageEvent = new PageEvent(),
-		fps = 60.0
 	) {
 		this.pageEvent = pageEvent;
-		this.fps = fps;
 		this.rootElement = null;
 		this.canvasElement = null;
 		this.rootComponent = null;
@@ -86,7 +84,7 @@ export const Page = class {
 		this.rootComponent.update();
 		this.rootComponent.draw();
 
-		setTimeout(this.loop.bind(this), 1000.0 / this.fps);
+		requestAnimationFrame(this.loop.bind(this));
 	}
 
 	addElement(name = "div", left = 0.0, top = 0.0, right = 1.0, bottom = 1.0, style = {}){

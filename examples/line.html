@@ -16,7 +16,6 @@
 		const Graphics = HydrangeaJS.WebGL.Graphics;
 		
 		let graphics;
-		let fps = 60.0;
 		let mouse = {x: 0, y: 0};
 
 		document.addEventListener("DOMContentLoaded", (event) => {
@@ -48,7 +47,7 @@
 			graphics.bezier(100, 100, 500, 500, 100, 500, mouse.x, mouse.y);
 			graphics.render();
 
-			setTimeout(loop, 1000.0 / fps);
+			requestAnimationFrame(loop);
 		}
 	</script>
 </head>

@@ -77,11 +77,15 @@ export const FrameNode = class extends Node {
 		let shader = this.inputShaderNodeParam.output.value.shader;
 		if (shader === null) return;
 		this.frameBuffer.beginDraw();
+		const isEnableBlend = this.frameBuffer.gl.isEnabled(this.frameBuffer.gl.DITHER);
+		this.frameBuffer.gl.disable(this.frameBuffer.gl.BLEND);
+		this.graphics.clear();
 		let tmp_current_shader = this.graphics.current_shader;
 		this.graphics.shader(shader);
 		this.graphics.rect(0, this.frameBuffer.height, this.frameBuffer.width, -this.frameBuffer.height);
 		this.graphics.shader(tmp_current_shader);
 		this.frameBuffer.endDraw();
+		if (isEnableBlend) this.frameBuffer.gl.enable(this.frameBuffer.gl.BLEND);
 	}
 	update(){
 		super.update();

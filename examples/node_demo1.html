@@ -20,8 +20,6 @@
 
 		const Applet = class {
 			constructor(canvas) {
-				this.fps = 60.0;
-
 				this.root = new RootComponent(canvas);
 				window.addEventListener("resize", (e) => {
 					this.root.graphics.resize(window.innerWidth, window.innerHeight);
@@ -84,7 +82,7 @@
 				this.root.update();
 				this.root.draw();
 
-				setTimeout(this.loop.bind(this), 1000.0 / this.fps);
+				requestAnimationFrame(this.loop.bind(this));
 			}
 		};
 		document.addEventListener("DOMContentLoaded", (event) => {

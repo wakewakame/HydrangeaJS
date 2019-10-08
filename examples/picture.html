@@ -19,7 +19,6 @@
 		let g;
 		let texture;
 		let time = 0.0;
-		let fps = 60.0;
 		let mousex, mousey;
 
 		document.addEventListener("DOMContentLoaded", (event) => {
@@ -42,7 +41,7 @@
 		});
 
 		const loop = () => {
-			time += 1.0 / fps; // Count time
+			time += 1.0 / 60.0; // Count time
 
 			g.clear();
 
@@ -55,7 +54,7 @@
 			g.popMatrix();
 			g.render();
 
-			setTimeout(loop, 1000.0 / fps);
+			requestAnimationFrame(loop);
 		}
 	</script>
 </head>

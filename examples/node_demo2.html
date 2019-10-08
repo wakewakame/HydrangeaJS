@@ -132,14 +132,26 @@
 				deleteButton.appendChild(deleteP);
 			}
 			mouseEvent(type, x, y, start_x, start_y){
-				super.mouseEvent(type, x, y, start_x, start_y);
-
 				if (type === "CLICK") {
 					switch(this.mode) {
 						case "select":
 							break;
 						case "create":
-							this.add(new ShaderNode  ("shader", x, y, 500));
+							this.add(new ShaderNode  ("shader", x, y, 500)).setCode(
+`precision highp float;
+uniform sampler2D texture;
+uniform ivec2 texture_resolution;
+varying vec2 vUv;
+
+void main(void){
+	vec2 area = vec2(
+		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
+		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
+	);
+	vec2 p = vUv * area;
+	gl_FragColor = texture2D(texture, p);
+}`
+							);
 							break;
 						case "delete":
 							let node = null;
@@ -154,6 +166,7 @@
 							break;
 					}
 				}
+				super.mouseEvent(type, x, y, start_x, start_y);
 			}
 			add(component){
 				const ret = super.add(component);

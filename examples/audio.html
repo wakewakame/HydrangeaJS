@@ -75,6 +75,20 @@
 						);
 						this.inputs.remove(this.inputShaderNodeParam);
 						this.inputs.remove(this.inputResolutionNodeParam);
+						this.previewShader.loadShader(this.previewShader.default_shader.vertex, `
+precision highp float;
+uniform sampler2D texture;
+uniform ivec2 textureArea;
+varying vec2 vUv;
+
+void main(void){
+	vec2 p = vUv * vec2(textureArea);
+	float wave = texture2D(texture, p).r / 2.0;
+	p.y = (p.y * 2.0) - 1.0;
+	float g = (p.y > wave) ? 1.0 : 0.0;
+	gl_FragColor = vec4(vec3(g), 1.0);
+}
+						`);
 					}
 					job() {
 						super.job();
@@ -99,6 +113,20 @@
 						this.outputs.remove(this.outputShaderNodeParam);
 						this.outputs.remove(this.outputResolutionNodeParam);
 						this.inputs.remove(this.inputResolutionNodeParam);
+						this.previewShader.loadShader(this.previewShader.default_shader.vertex, `
+precision highp float;
+uniform sampler2D texture;
+uniform ivec2 textureArea;
+varying vec2 vUv;
+
+void main(void){
+	vec2 p = vUv * vec2(textureArea);
+	float wave = texture2D(texture, p).r / 2.0;
+	p.y = (p.y * 2.0) - 1.0;
+	float g = (p.y > wave) ? 1.0 : 0.0;
+	gl_FragColor = vec4(vec3(g), 1.0);
+}
+						`);
 					}
 				}
 				this.audio = new Audio();
@@ -143,7 +171,10 @@
 			}
 			init(page) {
 				this.nodeCanvas = page.addComponent(new NodeCanvasExt(page));
-				let node1 = this.nodeCanvas.add(new ShaderNode("rotate", 30 + 250 * 1, 150, 500));
+				let node1 = this.nodeCanvas.add(new ShaderNode("copy", 30 + 250 * 1, 150, 500));
+				let node2 = this.nodeCanvas.add(new ShaderNode("s1", 30 + 250 * 1, 350, 500));
+				let node3 = this.nodeCanvas.add(new FrameNode("f1", 30 + 250 * 2, 350, 1024, 1024));
+				let node4 = this.nodeCanvas.add(new ValueNode("ivec2", "v1", 30 + 250 * 1, 550));
 
 				node1.setCode(
 `precision highp float;
@@ -162,9 +193,33 @@ void main(void){
 }`
 				);
 
+				node2.setCode(
+`precision highp float;
+uniform sampler2D texture;
+uniform ivec2 texture_resolution;
+varying vec2 vUv;
+
+void main(void){
+	vec2 area = vec2(
+		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
+		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
+	);
+	vec2 p = vUv * area;
+	float wave = texture2D(texture, p).r / 2.0;
+	p.y = (p.y * 2.0) - 1.0;
+	float g = (p.y > wave) ? 1.0 : 0.0;
+	gl_FragColor = vec4(vec3(g), 1.0);
+}`
+				);
+				node4.setCode('{"x": 1024, "y": 1024}');
+
 				node1.inputs.childs[0].output = this.nodeCanvas.audioInput.outputs.childs[0];
 				node1.inputs.childs[1].output = this.nodeCanvas.audioInput.outputs.childs[1];
 				this.nodeCanvas.audioOutput.inputs.childs[0].output = node1.outputs.childs[0];
+				node2.inputs.childs[0].output = this.nodeCanvas.audioInput.outputs.childs[0];
+				node2.inputs.childs[1].output = this.nodeCanvas.audioInput.outputs.childs[1];
+				node3.inputs.childs[0].output = node2.outputs.childs[0];
+				node3.inputs.childs[1].output = node4.outputs.childs[0];
 			}
 			loop(page) {
 				this.nodeCanvas.resetAndJob();

@@ -147,7 +147,9 @@ void main(void){
 						output[i] = tmpArray[i * 4 + 0];
 					}
 				});
-				document.addEventListener("click", () => { this.audio.clickEvent(); }, false);
+				document.addEventListener("click", () => {
+					this.audio.clickEvent();
+				}, false);
 			}
 			add(component){
 				const ret = super.add(component);

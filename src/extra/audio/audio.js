@@ -18,32 +18,13 @@ export const Audio = class {
 		scriptProcessor.onaudioprocess = this.update.bind(this);
 		scriptProcessor.connect(this.audio_context.destination);
 
-		const getAudioBuffer = (url, fn) => {
-			let req = new XMLHttpRequest();
-			req.responseType = 'arraybuffer';
-			req.onreadystatechange = () => {
-				if (req.readyState === 4) {
-					if (req.status === 0 || req.status === 200) {
-						this.audio_context.decodeAudioData(req.response, (buffer) => {
-							fn(buffer);
-						});
-					}
-				}
-			};
-			req.open('GET', url, true);
-			req.send('');
-		};
-
-		const playSound = (buffer) => {
-			const source = this.audio_context.createBufferSource();
-			source.buffer = buffer;
-			source.connect(scriptProcessor);
-			source.start(0);
-		};
-
-		getAudioBuffer('music.mp3', (buffer) => {
-			playSound(buffer);
-		});
+		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+		navigator.getUserMedia(
+			{ audio: true }, (stream) => {
+				let mediastreamsource = this.audio_context.createMediaStreamSource(stream);
+				mediastreamsource.connect(scriptProcessor);
+			}, (e) => { console.log(e); }
+		);
 	}
 
 	update(e) {
@@ -56,4 +37,20 @@ export const Audio = class {
 			this.callback(input, output, inputSampleRate, outputSampleRate);
 		}
 	}
+
+	loadSound(url, callback) {
+		let req = new XMLHttpRequest();
+		req.responseType = 'arraybuffer';
+		req.onreadystatechange = () => {
+			if (req.readyState === 4) {
+				if (req.status === 0 || req.status === 200) {
+					this.audio_context.decodeAudioData(req.response, (audioBuffer) => {
+						callback(audioBuffer);
+					});
+				}
+			}
+		};
+		req.open('GET', url, true);
+		req.send('');
+	};
 };

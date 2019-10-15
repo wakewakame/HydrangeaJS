@@ -11,8 +11,10 @@ export const PageEvent = class {
 export const Page = class {
 	constructor(
 		pageEvent = new PageEvent(),
+		autoLoop = true
 	) {
 		this.pageEvent = pageEvent;
+		this.autoLoop = autoLoop;
 		this.rootElement = null;
 		this.canvasElement = null;
 		this.rootComponent = null;
@@ -65,7 +67,7 @@ export const Page = class {
 
 			this.pageEvent.init(this);
 
-			this.loop();
+			if (this.autoLoop) this.loop();
 		};
 
 		if (document.readyState !== "loading") init();
@@ -84,7 +86,7 @@ export const Page = class {
 		this.rootComponent.update();
 		this.rootComponent.draw();
 
-		requestAnimationFrame(this.loop.bind(this));
+		if (this.autoLoop) requestAnimationFrame(this.loop.bind(this));
 	}
 
 	addElement(name = "div", left = 0.0, top = 0.0, right = 1.0, bottom = 1.0, style = {}){

@@ -41,7 +41,7 @@ export const FrameNode = class extends Node {
 				gl_FragColor = texture2D(texture, vUv * textureArea);
 			}
 		`);
-		this.resizeBox.target.y = this.w * this.frameBuffer.height / this.frameBuffer.width;
+		this.resize(this.w, this.w * this.frameBuffer.height / this.frameBuffer.width);
 	}
 	deleted(){
 		super.deleted();

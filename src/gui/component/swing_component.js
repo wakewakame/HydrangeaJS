@@ -28,12 +28,6 @@ export const SwingResizeBox = class extends ResizeBox {
 		this.target.y = Math.max(0.0, this.target.y);
 		this.target.x = Math.max(this.parent.min_w - this.w, this.target.x);
 		this.target.y = Math.max(this.parent.min_h - this.h, this.target.y);
-		if (
-			(Math.abs(this.parent.w - (this.x + this.w)) >= 1.0) || 
-			(Math.abs(this.parent.h - (this.y + this.h)) >= 1.0)
-		) {
-			this.parent.resize(this.x + this.w, this.y + this.h);
-		}
 	}
 	mouseEvent(type, x, y, start_x, start_y) {
 		if (this.mouseEventToChild(type, x, y, start_x, start_y)) return;
@@ -84,7 +78,20 @@ export const SwingComponent = class extends DefaultComponent {
 		this.accelerator.x *= this.param2; this.accelerator.y *= this.param2;
 		this.velocity.x += this.accelerator.x; this.velocity.y += this.accelerator.y;
 		this.x += this.velocity.x; this.y += this.velocity.y;
-		
+		if (
+			(Math.abs(this.w - (this.resizeBox.x + this.resizeBox.w)) >= 1.0) || 
+			(Math.abs(this.h - (this.resizeBox.y + this.resizeBox.h)) >= 1.0)
+		) {
+			super.resize(this.resizeBox.x + this.resizeBox.w, this.resizeBox.y + this.resizeBox.h);
+		}
+	}
+	resize(w, h){
+		if (!(this.resizeBox instanceof SwingResizeBox)) {
+			super.resize(w, h);
+			return;
+		}
+		this.resizeBox.target.x = w - this.resizeBox.w;
+		this.resizeBox.target.y = h - this.resizeBox.h;
 	}
 	mouseEvent(type, x, y, start_x, start_y) {
 		if (this.mouseEventToChild(type, x, y, start_x, start_y)) return;

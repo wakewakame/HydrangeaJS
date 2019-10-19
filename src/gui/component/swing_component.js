@@ -90,6 +90,7 @@ export const SwingComponent = class extends DefaultComponent {
 			super.resize(w, h);
 			return;
 		}
+		super.resize(this.w, this.h);
 		this.resizeBox.target.x = w - this.resizeBox.w;
 		this.resizeBox.target.y = h - this.resizeBox.h;
 	}

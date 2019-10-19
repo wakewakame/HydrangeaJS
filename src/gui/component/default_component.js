@@ -115,6 +115,10 @@ export const DefaultComponent = class extends Component {
 		add_vertices(this.outer_shape, -weight * 0.5, -weight * 0.5, this.w + weight, this.h + weight, this.r + weight, div);
 		this.outer_shape.endShape();
 	}
+	setColor(r, g, b){
+		this.color = {r: r, g: g, b: b};
+		this.resize();
+	}
 	update(){
 		/*
 		if(this.parent !== null){

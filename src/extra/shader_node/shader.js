@@ -11,7 +11,21 @@ export const ShaderNode = class extends Node {
 			initialized: false,
 			lastChangeTime: Date.now(),
 			isCompiled: false,
-			code: "",
+			code: `
+precision highp float;
+uniform sampler2D texture;
+uniform ivec2 texture_resolution;
+varying vec2 vUv;
+
+void main(void){
+	vec2 area = vec2(
+		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
+		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
+	);
+	vec2 p = vUv;
+	gl_FragColor = texture2D(texture, p);
+}
+			`,
 			error: "",
 			latency: compileLatency
 		};

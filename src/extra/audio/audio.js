@@ -38,14 +38,16 @@ export const Audio = class {
 		}
 	}
 
-	loadSound(url, callback) {
+	loadSound(url, successCallback, errorCallback) {
 		let req = new XMLHttpRequest();
 		req.responseType = 'arraybuffer';
 		req.onreadystatechange = () => {
 			if (req.readyState === 4) {
 				if (req.status === 0 || req.status === 200) {
-					this.audio_context.decodeAudioData(req.response, (audioBuffer) => {
-						callback(audioBuffer);
+					this.audio_context.decodeAudioData(req.response).then((audioBuffer) => {
+						if (successCallback) successCallback(audioBuffer);
+					}).catch((e) => {
+						if (errorCallback) errorCallback(e);
 					});
 				}
 			}

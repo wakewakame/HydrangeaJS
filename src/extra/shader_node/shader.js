@@ -156,5 +156,6 @@ void main(void){
 					break;
 			}
 		}
+		this.finishJob = false;
 	}
 };

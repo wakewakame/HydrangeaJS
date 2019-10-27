@@ -65,7 +65,7 @@ export const FrameNode = class extends Node {
 	job(){
 		super.job();
 		if (this.inputResolutionNodeParam.output !== null) {
-			this.frameBuffer.resize(
+			this.resizeFrame(
 				this.inputResolutionNodeParam.output.value.x,
 				this.inputResolutionNodeParam.output.value.y
 			);

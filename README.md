@@ -1,3 +1,5 @@
+![](https://wakewakame.github.io/HydrangeaJS/logo.svg)  
+
 # How to build  
 
 `$ npm install`  

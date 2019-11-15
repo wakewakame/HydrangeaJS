@@ -3,7 +3,7 @@ import { Graphics } from "../../webgl/graphics.js";
 import { GLMath } from "../../webgl/utils/math.js";
 
 export const RootComponent = class extends Component {
-	constructor(canvas) {
+	constructor(canvas, enableZoom = true) {
 		super(0, 0, canvas.width, canvas.height);
 
 		this.graphics = new Graphics(canvas);
@@ -30,9 +30,11 @@ export const RootComponent = class extends Component {
 			this.mouseX = e.clientX;
 			this.mouseY = e.clientY;
 		});
-		this.graphics.gapp.canvas.addEventListener("wheel", (e) => {
-			this.setZoom(e.deltaY * 0.001);
-		});
+		if (enableZoom) {
+			this.graphics.gapp.canvas.addEventListener("wheel", (e) => {
+				this.setZoom(e.deltaY * 0.001);
+			});
+		}
 
 		this.setup();
 	}

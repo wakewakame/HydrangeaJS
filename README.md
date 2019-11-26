@@ -13,3 +13,6 @@ next, access to `localhost:8080/examples/line.html` on your browser.
 
 # Examples  
 [https://wakewakame.github.com/HydrangeaJS/](https://wakewakame.github.com/HydrangeaJS/)  
+
+## License
+MIT

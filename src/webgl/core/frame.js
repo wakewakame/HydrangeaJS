@@ -51,6 +51,9 @@ export const Frame = class {
 		this.gl.readPixels(left, top, width, height, this.texture.format, this.texture.type, pixels);
 		this.endDraw();
 	}
+	isDeleted() {
+		return (this.frame_buffer === null);
+	}
 	delete() {
 		this.gl.deleteFramebuffer(this.frame_buffer);
 		this.frame_buffer = null;

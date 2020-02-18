@@ -106,7 +106,7 @@ export const Shader = class {
 	//  set(name, [mat]);
 	//  set(name, texture(GLCore.Texture));
 	set(name, x, y = null, z = null, w = null) {
-		if (!this.uniforms_type.hasOwnProperty(name)) throw new RangeError();
+		//if (!this.uniforms_type.hasOwnProperty(name)) throw new RangeError();
 		this.gl.useProgram(this.program);
 		switch (this.uniforms_type[name]) {
 			case "int":

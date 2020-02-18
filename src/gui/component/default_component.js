@@ -66,54 +66,7 @@ export const DefaultComponent = class extends Component {
 		this.w = Math.max(this.min_w, w);
 		this.h = Math.max(this.min_h, h);
 
-		const add_vertices = (shape, x, y, width, height, r, div) => {
-			shape.vertex(x + r, y, 0, r / width, 1.0);
-			shape.vertex(x + width - r, y, 0, (width - r) / width, 1.0);
-			for(let i = 1; i < div; i++) shape.vertex(
-				x + width  - r + r * Math.cos(Math.PI * (1.5 + 0.5 * i / div)),
-				y          + r + r * Math.sin(Math.PI * (1.5 + 0.5 * i / div)),
-				0,
-				0.0 + (width  - r + r * Math.cos(Math.PI * (1.5 + 0.5 * i / div))) / width,
-				1.0 - (0.0    + r + r * Math.sin(Math.PI * (1.5 + 0.5 * i / div))) / height
-			);
-			shape.vertex(x + width, y + r, 0, 1, 1.0 - r / height);
-			shape.vertex(x + width, y + height - r, 0, 1, 1.0 - (height - r) / height);
-			for(let i = 1; i < div; i++) shape.vertex(
-				x + width  - r + r * Math.cos(Math.PI * (0.0 + 0.5 * i / div)),
-				y + height - r + r * Math.sin(Math.PI * (0.0 + 0.5 * i / div)),
-				0,
-				0.0 + (width  - r + r * Math.cos(Math.PI * (0.0 + 0.5 * i / div))) / width,
-				1.0 - (height - r + r * Math.sin(Math.PI * (0.0 + 0.5 * i / div))) / height
-			);
-			shape.vertex(x + width - r, y + height, 0, (width - r) / width, 0.0);
-			shape.vertex(x + r, y + height, 0, r / width, 0.0);
-			for(let i = 1; i < div; i++) shape.vertex(
-				x          + r + r * Math.cos(Math.PI * (0.5 + 0.5 * i / div)),
-				y + height - r + r * Math.sin(Math.PI * (0.5 + 0.5 * i / div)),
-				0,
-				0.0 + (0.0    + r + r * Math.cos(Math.PI * (0.5 + 0.5 * i / div))) / width,
-				1.0 - (height - r + r * Math.sin(Math.PI * (0.5 + 0.5 * i / div))) / height
-			);
-			shape.vertex(x, y + height - r, 0, 0, 1.0 - (height - r) / height);
-			shape.vertex(x, y + r, 0, 0, 1.0 - r / height);
-			for(let i = 1; i < div; i++) shape.vertex(
-				x          + r + r * Math.cos(Math.PI * (1.0 + 0.5 * i / div)),
-				y          + r + r * Math.sin(Math.PI * (1.0 + 0.5 * i / div)),
-				0,
-				0.0 + (0.0        + r + r * Math.cos(Math.PI * (1.0 + 0.5 * i / div))) / width,
-				1.0 - (0.0        + r + r * Math.sin(Math.PI * (1.0 + 0.5 * i / div))) / height
-			);
-		};
-		const weight = 6.0;
-		const div = 8;
-		this.inner_shape.beginShape(this.inner_shape.gl.TRIANGLE_FAN);
-		this.inner_shape.color(1.0, 1.0, 1.0, 1.0);
-		add_vertices(this.inner_shape, weight * 0.5, weight * 0.5, this.w - weight, this.h - weight, this.r, div);
-		this.inner_shape.endShape();
-		this.outer_shape.beginShape(this.outer_shape.gl.TRIANGLE_FAN);
-		this.outer_shape.color(this.color.r, this.color.g, this.color.b, 1.0);
-		add_vertices(this.outer_shape, -weight * 0.5, -weight * 0.5, this.w + weight, this.h + weight, this.r + weight, div);
-		this.outer_shape.endShape();
+		this.redraw();
 	}
 	setColor(r, g, b){
 		this.color = {r: r, g: g, b: b};
@@ -132,5 +85,55 @@ export const DefaultComponent = class extends Component {
 	draw(){
 		this.graphics.shape(this.outer_shape);
 		this.graphics.shape(this.inner_shape);
+	}
+	add_vertices(shape, x, y, width, height, r, div){
+		shape.vertex(x + r, y, 0, r / width, 1.0);
+		shape.vertex(x + width - r, y, 0, (width - r) / width, 1.0);
+		for(let i = 1; i < div; i++) shape.vertex(
+			x + width  - r + r * Math.cos(Math.PI * (1.5 + 0.5 * i / div)),
+			y          + r + r * Math.sin(Math.PI * (1.5 + 0.5 * i / div)),
+			0,
+			0.0 + (width  - r + r * Math.cos(Math.PI * (1.5 + 0.5 * i / div))) / width,
+			1.0 - (0.0    + r + r * Math.sin(Math.PI * (1.5 + 0.5 * i / div))) / height
+		);
+		shape.vertex(x + width, y + r, 0, 1, 1.0 - r / height);
+		shape.vertex(x + width, y + height - r, 0, 1, 1.0 - (height - r) / height);
+		for(let i = 1; i < div; i++) shape.vertex(
+			x + width  - r + r * Math.cos(Math.PI * (0.0 + 0.5 * i / div)),
+			y + height - r + r * Math.sin(Math.PI * (0.0 + 0.5 * i / div)),
+			0,
+			0.0 + (width  - r + r * Math.cos(Math.PI * (0.0 + 0.5 * i / div))) / width,
+			1.0 - (height - r + r * Math.sin(Math.PI * (0.0 + 0.5 * i / div))) / height
+		);
+		shape.vertex(x + width - r, y + height, 0, (width - r) / width, 0.0);
+		shape.vertex(x + r, y + height, 0, r / width, 0.0);
+		for(let i = 1; i < div; i++) shape.vertex(
+			x          + r + r * Math.cos(Math.PI * (0.5 + 0.5 * i / div)),
+			y + height - r + r * Math.sin(Math.PI * (0.5 + 0.5 * i / div)),
+			0,
+			0.0 + (0.0    + r + r * Math.cos(Math.PI * (0.5 + 0.5 * i / div))) / width,
+			1.0 - (height - r + r * Math.sin(Math.PI * (0.5 + 0.5 * i / div))) / height
+		);
+		shape.vertex(x, y + height - r, 0, 0, 1.0 - (height - r) / height);
+		shape.vertex(x, y + r, 0, 0, 1.0 - r / height);
+		for(let i = 1; i < div; i++) shape.vertex(
+			x          + r + r * Math.cos(Math.PI * (1.0 + 0.5 * i / div)),
+			y          + r + r * Math.sin(Math.PI * (1.0 + 0.5 * i / div)),
+			0,
+			0.0 + (0.0        + r + r * Math.cos(Math.PI * (1.0 + 0.5 * i / div))) / width,
+			1.0 - (0.0        + r + r * Math.sin(Math.PI * (1.0 + 0.5 * i / div))) / height
+		);
+	}
+	redraw(){
+		const weight = 6.0;
+		const div = 8;
+		this.inner_shape.beginShape(this.inner_shape.gl.TRIANGLE_FAN);
+		this.inner_shape.color(1.0, 1.0, 1.0, 1.0);
+		this.add_vertices(this.inner_shape, weight * 0.5, weight * 0.5, this.w - weight, this.h - weight, this.r, div);
+		this.inner_shape.endShape();
+		this.outer_shape.beginShape(this.outer_shape.gl.TRIANGLE_FAN);
+		this.outer_shape.color(this.color.r, this.color.g, this.color.b, 1.0);
+		this.add_vertices(this.outer_shape, -weight * 0.5, -weight * 0.5, this.w + weight, this.h + weight, this.r + weight, div);
+		this.outer_shape.endShape();
 	}
 };

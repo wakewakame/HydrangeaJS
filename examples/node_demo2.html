@@ -138,21 +138,23 @@
 						case "select":
 							break;
 						case "create":
-							this.add(new ShaderAndFrameNode  ("shader", x, y, 500)).setCode(
-`precision highp float;
-uniform sampler2D texture;
-uniform ivec2 texture_resolution;
-varying vec2 vUv;
+							this.add(new ShaderAndFrameNode  ("shader", x, y, 500)).setCode(`
+{
+	"width": 32,
+	"height": 32,
+	"type": "UNSIGNED_BYTE",
+	"code": "
+		precision highp float;
+		uniform sampler2D texture;
+		varying vec2 vUv;
 
-void main(void){
-	vec2 area = vec2(
-		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
-		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
-	);
-	vec2 p = vUv * area;
-	gl_FragColor = texture2D(texture, p);
-}`
-							);
+		void main(void){
+			vec2 p = vUv;
+			gl_FragColor = texture2D(texture, vUv);
+		}
+	"
+}
+							`);
 							break;
 						case "delete":
 							let node = null;
@@ -194,43 +196,27 @@ void main(void){
 				let node0 = this.nodeCanvas.add(new TimeNode(30 + 250 * 0, 300));
 				let node1 = this.nodeCanvas.add(new PictureNode("lenna", "./lenna.png", 30 + 250 * 0, 30));
 				let node2 = this.nodeCanvas.add(new ShaderAndFrameNode  ("rotate", 30 + 250 * 1, 150, 500));
-				let node3 = this.nodeCanvas.add(new ShaderAndFrameNode  ("colorful", 30 + 250 * 3, 150, 500));
+				let node3 = this.nodeCanvas.add(new ShaderAndFrameNode  ("colorful", 30 + 250 * 2, 150, 500));
 
 				node2.setCode(`
 {
 	"width": 512,
 	"height": 512,
 	"type": "UNSIGNED_BYTE",
-	"code": \`
+	"code": "
 		precision highp float;
 		uniform sampler2D texture;
-		uniform ivec2 texture_resolution;
 		uniform float time;
 		varying vec2 vUv;
 
 		void main(void){
-			vec2 area = vec2(
-				float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
-				float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
-			);
-			vec2 p = vUv * area;
-			p -= area * 0.5;
+			vec2 p = vUv;
+			p -= vec2(0.5);
 			p *= mat2(cos(time), -sin(time), sin(time), cos(time));
-			p += area * 0.5;
+			p += vec2(0.5);
 			gl_FragColor = texture2D(texture, p);
 		}
-	\`,
-	"preview": \`
-		precision highp float;
-		uniform sampler2D texture;
-		uniform vec2 textureArea;
-		varying vec2 vUv;
-		varying vec4 vColor;
-
-		void main(void){
-			gl_FragColor = texture2D(texture, vUv * textureArea);
-		}
-	\`
+	"
 }
 				`);
 
@@ -239,23 +225,17 @@ void main(void){
 	"width": 512,
 	"height": 512,
 	"type": "UNSIGNED_BYTE",
-	"code": \`
+	"code": "
 		precision highp float;
 		uniform sampler2D texture;
-		uniform ivec2 texture_resolution;
 		varying vec2 vUv;
 
 		void main(void){
-			vec2 area = vec2(
-				float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
-				float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
-			);
-			vec2 p = vUv * area;
-			gl_FragColor = texture2D(texture, p);
-			gl_FragColor.rgb += vec3(p.x, 1.0 - sqrt(p.x * p.x + p.y * p.y), p.y);
+			gl_FragColor = texture2D(texture, vUv);
+			gl_FragColor.rgb += vec3(vUv.x, 1.0 - sqrt(vUv.x * vUv.x + vUv.y * vUv.y), vUv.y);
 		}
-	\`,
-	"preview": \`
+	",
+	"preview": "
 		precision highp float;
 		uniform sampler2D texture;
 		uniform vec2 textureArea;
@@ -265,14 +245,14 @@ void main(void){
 		void main(void){
 			gl_FragColor = texture2D(texture, vUv * textureArea);
 		}
-	\`
+	"
 }
 				`);
 
 				node2.inputs.childs[0].output = node1.outputs.childs[0];
-				node2.inputs.childs[1].output = node1.outputs.childs[1];
-				node2.inputs.childs[2].output = node0.outputs.childs[0];
-				node3.inputs.childs[0].output = node3.outputs.childs[0];
+				node2.inputs.childs[1].output = node0.outputs.childs[0];
+				node3.inputs.childs[0].output = node2.outputs.childs[0];
+
 			}
 			loop(page) {
 				this.nodeCanvas.resetAndJob();

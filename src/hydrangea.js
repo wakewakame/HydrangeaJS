@@ -13,6 +13,7 @@ import { FrameNode } from "./extra/shader_node/frame.js";
 import { ValueNodeParam } from "./extra/shader_node/param.js";
 import { PictureNode } from "./extra/shader_node/picture.js";
 import { ShaderNode } from "./extra/shader_node/shader.js";
+import { ShaderAndFrameNode } from "./extra/shader_node/shader_and_frame.js";
 import { TimeNode } from "./extra/shader_node/time.js";
 import { ValueNode } from "./extra/shader_node/value.js";
 import { Audio } from "./extra/audio/audio.js";
@@ -54,6 +55,7 @@ export const HydrangeaJS = {
 			ValueNodeParam: ValueNodeParam,
 			PictureNode: PictureNode,
 			ShaderNode: ShaderNode,
+			ShaderAndFrameNode: ShaderAndFrameNode,
 			TimeNode: TimeNode,
 			ValueNode: ValueNode
 		},

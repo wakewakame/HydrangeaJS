@@ -179,14 +179,16 @@ export const ShaderAndFrameNode = class extends Node {
 		this.resizeFrame(
 			code_json["output_width"],
 			code_json["output_height"],
-			null,
 			code_json["output_type"]
 		);
 	}
 	json_parse(code){
 		let ret = code;
 		// get all strings enclosed in double quotes
-		let code_string_list = ret.replace(/\n/g, "\\n").match(/".*?(?<!\\)"/g).map(t => t.replace(/\\n/g, "\n"));
+		let code_string_list = ret
+			.replace(/\n/g, "\\n").replace(/\r/g, '\\r')
+			.match(/".*?(?<!\\)"/g)
+			.map(t => t.replace(/\\n/g, "\n").replace(/\\r/g, "\r"));
 		
 		// fix all escape characters in all strings enclosed in double quotes
 		code_string_list.forEach((code_string) => {

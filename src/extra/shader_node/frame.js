@@ -1,11 +1,15 @@
-import { Node } from "../../gui/templates/node_component.js";
+import { ConvertibleNode } from "../../gui/templates/convertible_node_component.js";
 import { ValueNodeParam } from "./param.js";
 
-export const FrameNode = class extends Node {
-	constructor(name, x, y, width = 1, height = 1, format = null, type = null) {
-		super("frame", name, x, y);
+export const FrameNode = class extends ConvertibleNode {
+	constructor(name = "", x = 0, y = 0, width = 1, height = 1, format = null, type = null) {
+		super();
+		this.type = "frame";
+		this.name = name;
+		this.x = x;
+		this.y = y;
 		this.frameBuffer = null;
-		this.frameBufferState = {
+		this.json["custom"].frameBufferState = {
 			width: width,
 			height: height,
 			format: format,
@@ -24,10 +28,10 @@ export const FrameNode = class extends Node {
 		this.outputShaderNodeParam = this.outputs.add(new ValueNodeParam("frame", "output frame"));
 		this.outputResolutionNodeParam = this.outputs.add(new ValueNodeParam("ivec2", "output resolution"));
 		this.frameBuffer = this.graphics.createFrame(
-			this.frameBufferState.width,
-			this.frameBufferState.height,
-			this.frameBufferState.format,
-			this.frameBufferState.type
+			this.json["custom"].frameBufferState.width,
+			this.json["custom"].frameBufferState.height,
+			this.json["custom"].frameBufferState.format,
+			this.json["custom"].frameBufferState.type
 		);
 		this.previewShader = this.graphics.createShader();
 		this.previewShader.loadShader(this.previewShader.default_shader.vertex, `
@@ -55,7 +59,7 @@ export const FrameNode = class extends Node {
 			format,
 			type
 		);
-		this.frameBufferState = {
+		this.json["custom"].frameBufferState = {
 			width: this.frameBuffer.width,
 			height: this.frameBuffer.height,
 			format: this.frameBuffer.texture.format,

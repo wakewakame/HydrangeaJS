@@ -1,9 +1,13 @@
-import { Node } from "../../gui/templates/node_component.js";
+import { ConvertibleNode } from "../../gui/templates/convertible_node_component.js";
 import { ValueNodeParam } from "./param.js";
 
-export const ShaderAndFrameNode = class extends Node {
-	constructor(name, x, y, compileLatency = -1) {
-		super("filter", name, x, y);
+export const ShaderAndFrameNode = class extends ConvertibleNode {
+	constructor(name = "", x = 0, y = 0, compileLatency = -1) {
+		super();
+		this.type = "filter";
+		this.name = name;
+		this.x = x;
+		this.y = y;
 		this.frameShader = null;
 		this.previewShader = null;
 		this.outputFrameBuffer = null;
@@ -37,12 +41,12 @@ export const ShaderAndFrameNode = class extends Node {
 		}
 	"
 }`;
-		this.frameBufferState = {
+		this.json["custom"].frameBufferState = {
 			width: 1,
 			height: 1,
 			type: null,
 		};
-		this.compileState = {
+		this.json["custom"].compileState = {
 			initialized: false,
 			lastChangeTime: Date.now(),
 			isCompiled: false,
@@ -59,19 +63,28 @@ export const ShaderAndFrameNode = class extends Node {
 		this.frameShader.loadDefaultShader();
 		this.previewShader = this.graphics.createShader();
 		this.previewShader.loadDefaultShader();
+		this.json["custom"].compileState = {
+			initialized: false,
+			lastChangeTime: Date.now(),
+			isCompiled: false,
+			code: this.json["custom"].compileState.code,
+			error: "",
+			latency: this.json["custom"].compileState.latency
+		};
 		this.outputFrameBuffer = this.graphics.createFrame(
-			this.frameBufferState.width,
-			this.frameBufferState.height,
+			this.json["custom"].frameBufferState.width,
+			this.json["custom"].frameBufferState.height,
 			null,
-			this.frameBufferState.type
+			this.json["custom"].frameBufferState.type
 		);
 		this.previousOutputFrameBuffer = this.graphics.createFrame(
-			this.frameBufferState.width,
-			this.frameBufferState.height,
+			this.json["custom"].frameBufferState.width,
+			this.json["custom"].frameBufferState.height,
 			null,
-			this.frameBufferState.type
+			this.json["custom"].frameBufferState.type
 		);
 		this.resize(this.w, this.w * this.outputFrameBuffer.height / this.outputFrameBuffer.width);
+		this.setCode_();
 	}
 	deleted(){
 		super.deleted();
@@ -81,51 +94,51 @@ export const ShaderAndFrameNode = class extends Node {
 		this.previousOutputFrameBuffer.delete();
 	}
 	resizeFrame(width, height, type = null){
-		this.frameBufferState = {
+		this.json["custom"].frameBufferState = {
 			width: width,
 			height: height,
 			type: type,
 		};
 		this.outputFrameBuffer.resize(
-			this.frameBufferState.width,
-			this.frameBufferState.height,
+			this.json["custom"].frameBufferState.width,
+			this.json["custom"].frameBufferState.height,
 			null,
-			this.frameBufferState.type
+			this.json["custom"].frameBufferState.type
 		);
 		this.previousOutputFrameBuffer.resize(
-			this.frameBufferState.width,
-			this.frameBufferState.height,
+			this.json["custom"].frameBufferState.width,
+			this.json["custom"].frameBufferState.height,
 			null,
-			this.frameBufferState.type
+			this.json["custom"].frameBufferState.type
 		);
 	}
 	setCode(code){
-		this.compileState = {
-			initialized: this.compileState.initialized,
+		this.json["custom"].compileState = {
+			initialized: this.json["custom"].compileState.initialized,
 			lastChangeTime: Date.now(),
 			isCompiled: false,
 			code: code,
-			error: this.compileState.error,
-			latency: this.compileState.latency
+			error: this.json["custom"].compileState.error,
+			latency: this.json["custom"].compileState.latency
 		};
 		this.setCode_();
 	}
 	setCode_(){
 		// ignore compiling the same code
 		if (
-			(this.compileState.initialized) && (
-				(this.compileState.isCompiled) ||
-				(Date.now() - this.compileState.lastChangeTime < this.compileState.latency)
+			(this.json["custom"].compileState.initialized) && (
+				(this.json["custom"].compileState.isCompiled) ||
+				(Date.now() - this.json["custom"].compileState.lastChangeTime < this.json["custom"].compileState.latency)
 			)
 		) return;
 
 		// init
 		let code_json = {};
-		this.compileState.error = "";
+		this.json["custom"].compileState.error = "";
 
-		// parsing this.compileState.code into json
+		// parsing this.json["custom"].compileState.code into json
 		try{
-			code_json = this.json_parse(this.compileState.code);
+			code_json = this.json_parse(this.json["custom"].compileState.code);
 
 			// error check
 			if (!code_json.hasOwnProperty("output_width")) throw new RangeError('output_width is not defined');
@@ -139,20 +152,20 @@ export const ShaderAndFrameNode = class extends Node {
 			if (!code_json.hasOwnProperty("preview")) code_json["preview"] = this.json_parse(this.default_code)["preview"];
 		}
 		catch(e){
-			this.compileState.error = e.message;
+			this.json["custom"].compileState.error = e.message;
 			console.log(e.message);
 			this.check_error();
 			return;
 		}
 
 		// compiling frameShader
-		this.compileState.error = this.frameShader.loadShader(
+		this.json["custom"].compileState.error = this.frameShader.loadShader(
 			this.frameShader.default_shader.vertex, code_json["code"]
 		);
 		if (this.check_error()) return;
 
 		// compiling previewShader
-		this.compileState.error = this.previewShader.loadShader(
+		this.json["custom"].compileState.error = this.previewShader.loadShader(
 			this.frameShader.default_shader.vertex, code_json["preview"]
 		);
 		if (this.check_error()) return;
@@ -208,9 +221,9 @@ export const ShaderAndFrameNode = class extends Node {
 		return JSON.parse(ret);
 	}
 	check_error(){
-		this.compileState.initialized = true;
-		this.compileState.isCompiled = true;
-		if (this.compileState.error !== "") {
+		this.json["custom"].compileState.initialized = true;
+		this.json["custom"].compileState.isCompiled = true;
+		if (this.json["custom"].compileState.error !== "") {
 			if (this.color !== {r: 1.0, g: 0.0, b: 0.2}) {
 				this.color = {r: 1.0, g: 0.0, b: 0.2};
 				this.redraw();
@@ -229,6 +242,7 @@ export const ShaderAndFrameNode = class extends Node {
 	}
 	draw(){
 		super.draw();
+		this.setCode_();
 		let tmp_current_shader = this.graphics.current_shader;
 		this.graphics.shader(this.previewShader);
 		const types = this.previewShader.uniforms_type;

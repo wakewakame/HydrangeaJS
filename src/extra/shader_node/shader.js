@@ -1,13 +1,17 @@
-import { Node } from "../../gui/templates/node_component.js";
+import { ConvertibleNode } from "../../gui/templates/convertible_node_component.js";
 import { ValueNodeParam } from "./param.js";
 
-export const ShaderNode = class extends Node {
-	constructor(name, x, y, compileLatency = -1) {
-		super("shader", name, x, y);
+export const ShaderNode = class extends ConvertibleNode {
+	constructor(name = "", x = 0, y = 0, compileLatency = -1) {
+		super();
+		this.type = "shader";
+		this.name = name;
+		this.x = x;
+		this.y = y;
 		this.shader = null;
 		this.inputFrameNodeParam = null;
 		this.outputFrameNodeParam = null;
-		this.compileState = {
+		this.json["custom"].compileState = {
 			initialized: false,
 			lastChangeTime: Date.now(),
 			isCompiled: false,
@@ -35,35 +39,44 @@ void main(void){
 		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam("shader", "output shader"));
 		this.shader = this.graphics.createShader();
 		this.shader.loadDefaultShader();
+		this.json["custom"].compileState = {
+			initialized: false,
+			lastChangeTime: Date.now(),
+			isCompiled: false,
+			code: this.json["custom"].compileState.code,
+			error: "",
+			latency: this.json["custom"].compileState.latency
+		};
+		this.setCode_();
 	}
 	deleted(){
 		super.deleted();
 		this.shader.delete();
 	}
 	setCode(code){
-		this.compileState = {
-			initialized: this.compileState.initialized,
+		this.json["custom"].compileState = {
+			initialized: this.json["custom"].compileState.initialized,
 			lastChangeTime: Date.now(),
 			isCompiled: false,
 			code: code,
-			error: this.compileState.error,
-			latency: this.compileState.latency
+			error: this.json["custom"].compileState.error,
+			latency: this.json["custom"].compileState.latency
 		};
 		this.setCode_();
 	}
 	setCode_(){
 		if (
-			(this.compileState.initialized) && (
-				(this.compileState.isCompiled) ||
-				(Date.now() - this.compileState.lastChangeTime < this.compileState.latency)
+			(this.json["custom"].compileState.initialized) && (
+				(this.json["custom"].compileState.isCompiled) ||
+				(Date.now() - this.json["custom"].compileState.lastChangeTime < this.json["custom"].compileState.latency)
 			)
 		) return;
-		this.compileState.error = this.shader.loadShader(
-			this.shader.default_shader.vertex, this.compileState.code
+		this.json["custom"].compileState.error = this.shader.loadShader(
+			this.shader.default_shader.vertex, this.json["custom"].compileState.code
 		);
-		this.compileState.initialized = true;
-		this.compileState.isCompiled = true;
-		if (this.compileState.error !== "") {
+		this.json["custom"].compileState.initialized = true;
+		this.json["custom"].compileState.isCompiled = true;
+		if (this.json["custom"].compileState.error !== "") {
 			if (this.color !== {r: 1.0, g: 0.0, b: 0.2}) {
 				this.color = {r: 1.0, g: 0.0, b: 0.2};
 				this.redraw();
@@ -95,6 +108,7 @@ void main(void){
 	}
 	job(){
 		super.job();
+		this.setCode_();
 		this.outputFrameNodeParam.value.shader = this.shader;
 		for(let c of this.inputs.childs) {
 			if(c.output === null) {

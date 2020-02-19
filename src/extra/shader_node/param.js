@@ -1,6 +1,6 @@
-import { NodeParam } from "../../gui/templates/node_component.js";
+import { ConvertibleNodeParam } from "../../gui/templates/convertible_node_component.js";
 
-export const ValueNodeParam = class extends NodeParam {
+export const ValueNodeParam = class extends ConvertibleNodeParam {
 	constructor(type, name) {
 		super(type, name);
 		this.value = {};

@@ -1,17 +1,20 @@
-import { Node } from "../../gui/templates/node_component.js";
+import { ConvertibleNode } from "../../gui/templates/convertible_node_component.js";
 import { ValueNodeParam } from "./param.js";
 import { FrameNode } from "./frame.js";
 
 export const PictureNode = class extends FrameNode {
-	constructor(name, img_url, x, y) {
-		super(name, x, y);
-		this.img_url = img_url;
-		this.frameBuffer = null;
+	constructor(name = "", img_url = "", x = 0, y = 0) {
+		super();
+		this.type = "image";
+		this.name = name;
+		this.x = x;
+		this.y = y;
+		this.json["custom"].img_url = img_url;
 	}
 	setup(){
 		super.setup();
 		let img = this.graphics.createTexture(0, 0);
-		img.loadImg(this.img_url, () => {
+		img.loadImg(this.json["custom"].img_url, () => {
 			this.resizeFrame(img.width, img.height);
 			this.frameBuffer.beginDraw();
 			this.graphics.image(img, 0, 0, img.width, img.height);

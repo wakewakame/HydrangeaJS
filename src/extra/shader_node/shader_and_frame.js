@@ -145,13 +145,13 @@ export const ShaderAndFrameNode = class extends Node {
 			return;
 		}
 
-		// compileing frameShader
+		// compiling frameShader
 		this.compileState.error = this.frameShader.loadShader(
 			this.frameShader.default_shader.vertex, code_json["code"]
 		);
 		if (this.check_error()) return;
 
-		// compileing previewShader
+		// compiling previewShader
 		this.compileState.error = this.previewShader.loadShader(
 			this.frameShader.default_shader.vertex, code_json["preview"]
 		);

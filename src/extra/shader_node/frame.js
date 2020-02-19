@@ -34,11 +34,11 @@ export const FrameNode = class extends Node {
 			precision highp float;
 			uniform sampler2D texture;
 			uniform vec2 textureArea;
-			varying vec2 vUv;
-			varying vec4 vColor;
+			varying vec2 v_uv;
+			varying vec4 v_color;
 
 			void main(void){
-				gl_FragColor = texture2D(texture, vUv * textureArea);
+				gl_FragColor = texture2D(texture, v_uv * textureArea);
 			}
 		`);
 		this.resize(this.w, this.w * this.frameBuffer.height / this.frameBuffer.width);

@@ -15,14 +15,14 @@ export const ShaderNode = class extends Node {
 precision highp float;
 uniform sampler2D texture;
 uniform ivec2 texture_resolution;
-varying vec2 vUv;
+varying vec2 v_uv;
 
 void main(void){
 	vec2 area = vec2(
 		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
 		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
 	);
-	vec2 p = vUv;
+	vec2 p = v_uv;
 	gl_FragColor = texture2D(texture, p);
 }
 			`,

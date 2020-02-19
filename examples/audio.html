@@ -79,10 +79,10 @@
 precision highp float;
 uniform sampler2D texture;
 uniform ivec2 textureArea;
-varying vec2 vUv;
+varying vec2 v_uv;
 
 void main(void){
-	vec2 p = vUv * vec2(textureArea);
+	vec2 p = v_uv * vec2(textureArea);
 	float wave = texture2D(texture, p).r / 2.0;
 	p.y = (p.y * 2.0) - 1.0;
 	float g = (p.y > wave) ? 1.0 : 0.0;
@@ -117,10 +117,10 @@ void main(void){
 precision highp float;
 uniform sampler2D texture;
 uniform ivec2 textureArea;
-varying vec2 vUv;
+varying vec2 v_uv;
 
 void main(void){
-	vec2 p = vUv * vec2(textureArea);
+	vec2 p = v_uv * vec2(textureArea);
 	float wave = texture2D(texture, p).r / 2.0;
 	p.y = (p.y * 2.0) - 1.0;
 	float g = (p.y > wave) ? 1.0 : 0.0;
@@ -182,14 +182,14 @@ void main(void){
 `precision highp float;
 uniform sampler2D texture;
 uniform ivec2 texture_resolution;
-varying vec2 vUv;
+varying vec2 v_uv;
 
 void main(void){
 	vec2 area = vec2(
 		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
 		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
 	);
-	vec2 p = vUv * area;
+	vec2 p = v_uv * area;
 	float wave = texture2D(texture, p).r;
 	gl_FragColor = vec4(wave, 0.0, 0.0, 1.0);
 }`
@@ -199,14 +199,14 @@ void main(void){
 `precision highp float;
 uniform sampler2D texture;
 uniform ivec2 texture_resolution;
-varying vec2 vUv;
+varying vec2 v_uv;
 
 void main(void){
 	vec2 area = vec2(
 		float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
 		float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
 	);
-	vec2 p = vUv * area;
+	vec2 p = v_uv * area;
 	float wave = texture2D(texture, p).r / 2.0;
 	p.y = (p.y * 2.0) - 1.0;
 	float g = (p.y > wave) ? 1.0 : 0.0;

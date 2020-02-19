@@ -3,46 +3,40 @@ import { ValueNodeParam } from "./param.js";
 
 export const ShaderAndFrameNode = class extends Node {
 	constructor(name, x, y, compileLatency = -1) {
-		super("shader", name, x, y);
+		super("filter", name, x, y);
 		this.frameShader = null;
 		this.previewShader = null;
 		this.outputFrameBuffer = null;
+		this.previousOutputFrameBuffer = null;
 		this.outputFrameNodeParam = null;
-		this.default_code = `
-{
-	"width": 512,
-	"height": 512,
-	"type": "UNSIGNED_BYTE",
+		this.previousOutputFrameNodeParam = null;
+		this.default_code = 
+`{
+	"output_width": 512,
+	"output_height": 512,
+	"output_type": "UNSIGNED_BYTE",
 	"code": "
 		precision highp float;
-		uniform ivec2 output_resolution;
-		uniform sampler2D texture;
-		uniform ivec2 texture_resolution;
-		varying vec2 vUv;
+		uniform sampler2D input_frame;
+		uniform vec4 input_frame_area;
+		varying vec2 v_uv;
 
 		void main(void){
-			vec2 area = vec2(
-				float(texture_resolution.x) / exp2(ceil(log2(float(texture_resolution.x)))),
-				float(texture_resolution.y) / exp2(ceil(log2(float(texture_resolution.y))))
-			);
-			vec2 code_json = vUv;
-			gl_FragColor = texture2D(texture, code_json);
+			vec2 p = v_uv * input_frame_area.xy;
+			gl_FragColor = texture2D(input_frame, p);
 		}
 	",
 	"preview": "
 		precision highp float;
-		uniform sampler2D texture;
-		uniform vec2 textureArea;
-		varying vec2 vUv;
-		varying vec4 vColor;
+		uniform sampler2D output_frame;
+		uniform vec4 output_frame_area;
+		varying vec2 v_uv;
 
 		void main(void){
-			gl_FragColor = texture2D(texture, vUv * textureArea);
+			gl_FragColor = texture2D(output_frame, v_uv * output_frame_area.xy);
 		}
 	"
-}
-	
-		`;
+}`;
 		this.frameBufferState = {
 			width: 1,
 			height: 1,
@@ -60,11 +54,18 @@ export const ShaderAndFrameNode = class extends Node {
 	setup(){
 		super.setup();
 		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam("frame", "output"));
+		this.previousOutputFrameNodeParam = this.outputs.add(new ValueNodeParam("frame", "previous output"));
 		this.frameShader = this.graphics.createShader();
 		this.frameShader.loadDefaultShader();
 		this.previewShader = this.graphics.createShader();
 		this.previewShader.loadDefaultShader();
 		this.outputFrameBuffer = this.graphics.createFrame(
+			this.frameBufferState.width,
+			this.frameBufferState.height,
+			null,
+			this.frameBufferState.type
+		);
+		this.previousOutputFrameBuffer = this.graphics.createFrame(
 			this.frameBufferState.width,
 			this.frameBufferState.height,
 			null,
@@ -77,19 +78,26 @@ export const ShaderAndFrameNode = class extends Node {
 		this.frameShader.delete();
 		this.previewShader.delete();
 		this.outputFrameBuffer.delete();
+		this.previousOutputFrameBuffer.delete();
 	}
 	resizeFrame(width, height, type = null){
-		this.outputFrameBuffer.resize(
-			width,
-			height,
-			null,
-			type
-		);
 		this.frameBufferState = {
-			width: this.outputFrameBuffer.width,
-			height: this.outputFrameBuffer.height,
-			type: this.outputFrameBuffer.texture.type,
+			width: width,
+			height: height,
+			type: type,
 		};
+		this.outputFrameBuffer.resize(
+			this.frameBufferState.width,
+			this.frameBufferState.height,
+			null,
+			this.frameBufferState.type
+		);
+		this.previousOutputFrameBuffer.resize(
+			this.frameBufferState.width,
+			this.frameBufferState.height,
+			null,
+			this.frameBufferState.type
+		);
 	}
 	setCode(code){
 		this.compileState = {
@@ -120,13 +128,13 @@ export const ShaderAndFrameNode = class extends Node {
 			code_json = this.json_parse(this.compileState.code);
 
 			// error check
-			if (!code_json.hasOwnProperty("width")) throw new RangeError('width is not defined');
-			if (typeof(code_json["width"]) !== "number") throw new TypeError('width is not number');
-			if (!code_json.hasOwnProperty("height")) throw new RangeError('height is not defined');
-			if (typeof(code_json["height"]) !== "number") throw new TypeError('height is not number');
-			if (!code_json.hasOwnProperty("type")) throw new RangeError('type is not defined');
-			if ((code_json["type"] != "UNSIGNED_BYTE") && (code_json["type"] != "FLOAT")) throw new RangeError('type is wrong value. you can select only "UNSIGNED_BYTE" or "FLOAT"');
-			code_json["type"] = this.outputFrameBuffer.gl[code_json["type"]];
+			if (!code_json.hasOwnProperty("output_width")) throw new RangeError('output_width is not defined');
+			if (typeof(code_json["output_width"]) !== "number") throw new TypeError('output_width is not number');
+			if (!code_json.hasOwnProperty("output_height")) throw new RangeError('output_height is not defined');
+			if (typeof(code_json["output_height"]) !== "number") throw new TypeError('output_height is not number');
+			if (!code_json.hasOwnProperty("output_type")) throw new RangeError('output_type is not defined');
+			if ((code_json["output_type"] != "UNSIGNED_BYTE") && (code_json["output_type"] != "FLOAT")) throw new RangeError('output_type is wrong value. you can select only "UNSIGNED_BYTE" or "FLOAT"');
+			code_json["output_type"] = this.outputFrameBuffer.gl[code_json["output_type"]];
 			if (!code_json.hasOwnProperty("code")) throw new RangeError('code is not defined');
 			if (!code_json.hasOwnProperty("preview")) code_json["preview"] = this.json_parse(this.default_code)["preview"];
 		}
@@ -155,9 +163,11 @@ export const ShaderAndFrameNode = class extends Node {
 			inputs_output[code_json.name] = {type: code_json.type, output: code_json.output};
 			this.inputs.remove(code_json);
 		}
-		Object.keys(this.frameShader.uniforms_type).forEach((key) => {
+		const types = this.frameShader.uniforms_type;
+		Object.keys(types).forEach((key) => {
 			if (key === "matrix") return;
-			let type = this.frameShader.uniforms_type[key];
+			if (/_area$/.test(key) && types.hasOwnProperty(key.replace(/_area$/, ""))) return;
+			let type = types[key];
 			if (type === "sampler2D") type = "frame";
 			let param = this.inputs.add(new ValueNodeParam(type, key));
 			if (param !== null && inputs_output.hasOwnProperty(key) && inputs_output[key].type === type) {
@@ -165,20 +175,20 @@ export const ShaderAndFrameNode = class extends Node {
 			}
 		});
 
-		// resize the outputFrameBuffer
+		// resize the outputFrameBuffer and previousOutputFrameBuffer
 		this.resizeFrame(
-			code_json["width"],
-			code_json["height"],
+			code_json["output_width"],
+			code_json["output_height"],
 			null,
-			code_json["type"]
+			code_json["output_type"]
 		);
 	}
 	json_parse(code){
 		let ret = code;
-		// escape 1
+		// get all strings enclosed in double quotes
 		let code_string_list = ret.replace(/\n/g, "\\n").match(/".*?(?<!\\)"/g).map(t => t.replace(/\\n/g, "\n"));
 		
-		// escape 2
+		// fix all escape characters in all strings enclosed in double quotes
 		code_string_list.forEach((code_string) => {
 			let excaped_code_string = code_string
 				.replace(/\\"/g, '\\\\"')
@@ -219,12 +229,19 @@ export const ShaderAndFrameNode = class extends Node {
 		super.draw();
 		let tmp_current_shader = this.graphics.current_shader;
 		this.graphics.shader(this.previewShader);
-		this.previewShader.set("texture", this.outputFrameBuffer.texture);
-		this.previewShader.set(
-			"textureArea",
-			this.outputFrameBuffer.texture.width  / this.outputFrameBuffer.texture.pow2_width,
-			this.outputFrameBuffer.texture.height / this.outputFrameBuffer.texture.pow2_height
-		);
+		const types = this.previewShader.uniforms_type;
+		if (types["output_frame"] === "sampler2D"){
+			this.previewShader.set("output_frame", this.outputFrameBuffer.texture);
+		}
+		if (["vec2", "ivec2", "vec4", "ivec4"].indexOf(types["output_frame_area"]) >= 0){
+			this.previewShader.set(
+				"output_frame_area",
+				this.outputFrameBuffer.texture.width  / this.outputFrameBuffer.texture.pow2_width,
+				this.outputFrameBuffer.texture.height / this.outputFrameBuffer.texture.pow2_height,
+				this.outputFrameBuffer.texture.width,
+				this.outputFrameBuffer.texture.height
+			);
+		}
 		this.graphics.shape(this.inner_shape);
 		this.graphics.shader(tmp_current_shader);
 	}
@@ -289,18 +306,28 @@ export const ShaderAndFrameNode = class extends Node {
 						c.name,
 						c.output.value.texture
 					);
+					const name = c.name + "_area";
+					const type = this.frameShader.uniforms_type[name];
+					if (type === undefined) break;
+					if (["vec2", "ivec2", "vec4", "ivec4"].indexOf(type) >= 0){
+						this.frameShader.set(
+							name,
+							c.output.value.texture.width / c.output.value.texture.pow2_width,
+							c.output.value.texture.height / c.output.value.texture.pow2_height,
+							c.output.value.texture.width,
+							c.output.value.texture.height
+						);
+					}
 					break;
 			}
 		}
 
 		// frame buffer process
-		this.resizeFrame(
-			this.frameBufferState.width,
-			this.frameBufferState.height,
-			null,
-			this.frameBufferState.type
-		);
+		let tmpFrameBuffer = this.outputFrameBuffer;
+		this.outputFrameBuffer = this.previousOutputFrameBuffer;
+		this.previousOutputFrameBuffer = tmpFrameBuffer;
 		this.outputFrameNodeParam.value.texture = this.outputFrameBuffer.texture;
+		this.previousOutputFrameNodeParam.value.texture = this.previousOutputFrameBuffer.texture;
 		this.outputFrameBuffer.beginDraw();
 		const isEnableBlend = this.outputFrameBuffer.gl.isEnabled(this.outputFrameBuffer.gl.DITHER);
 		this.outputFrameBuffer.gl.disable(this.outputFrameBuffer.gl.BLEND);

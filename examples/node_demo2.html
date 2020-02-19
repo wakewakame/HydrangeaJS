@@ -138,23 +138,7 @@
 						case "select":
 							break;
 						case "create":
-							this.add(new ShaderAndFrameNode  ("shader", x, y, 500)).setCode(`
-{
-	"width": 32,
-	"height": 32,
-	"type": "UNSIGNED_BYTE",
-	"code": "
-		precision highp float;
-		uniform sampler2D texture;
-		varying vec2 vUv;
-
-		void main(void){
-			vec2 p = vUv;
-			gl_FragColor = texture2D(texture, vUv);
-		}
-	"
-}
-							`);
+							this.add(new ShaderAndFrameNode  ("shader", x, y, 500));
 							break;
 						case "delete":
 							let node = null;
@@ -200,21 +184,22 @@
 
 				node2.setCode(`
 {
-	"width": 512,
-	"height": 512,
-	"type": "UNSIGNED_BYTE",
+	"output_width": 512,
+	"output_height": 512,
+	"output_type": "UNSIGNED_BYTE",
 	"code": "
 		precision highp float;
-		uniform sampler2D texture;
+		uniform sampler2D input_frame;
+		uniform vec4 input_frame_area;
 		uniform float time;
-		varying vec2 vUv;
+		varying vec2 v_uv;
 
 		void main(void){
-			vec2 p = vUv;
+			vec2 p = v_uv * input_frame_area.xy;
 			p -= vec2(0.5);
 			p *= mat2(cos(time), -sin(time), sin(time), cos(time));
 			p += vec2(0.5);
-			gl_FragColor = texture2D(texture, p);
+			gl_FragColor = texture2D(input_frame, p);
 		}
 	"
 }
@@ -222,28 +207,28 @@
 
 				node3.setCode(`
 {
-	"width": 512,
-	"height": 512,
-	"type": "UNSIGNED_BYTE",
+	"output_width": 512,
+	"output_height": 512,
+	"output_type": "UNSIGNED_BYTE",
 	"code": "
 		precision highp float;
-		uniform sampler2D texture;
-		varying vec2 vUv;
+		uniform sampler2D input_frame;
+		uniform vec4 input_frame_area;
+		varying vec2 v_uv;
 
 		void main(void){
-			gl_FragColor = texture2D(texture, vUv);
-			gl_FragColor.rgb += vec3(vUv.x, 1.0 - sqrt(vUv.x * vUv.x + vUv.y * vUv.y), vUv.y);
+			gl_FragColor = texture2D(input_frame, v_uv * input_frame_area.xy);
+			gl_FragColor.rgb += vec3(v_uv.x, 1.0 - sqrt(v_uv.x * v_uv.x + v_uv.y * v_uv.y), v_uv.y);
 		}
 	",
 	"preview": "
 		precision highp float;
-		uniform sampler2D texture;
-		uniform vec2 textureArea;
-		varying vec2 vUv;
-		varying vec4 vColor;
+		uniform sampler2D output_frame;
+		uniform vec2 output_frame_area;
+		varying vec2 v_uv;
 
 		void main(void){
-			gl_FragColor = texture2D(texture, vUv * textureArea);
+			gl_FragColor = texture2D(output_frame, v_uv * output_frame_area);
 		}
 	"
 }

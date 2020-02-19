@@ -15,11 +15,11 @@ export const Graphics = class {
 		this.shaders.texture.loadShader(this.shaders.texture.default_shader.vertex, `
 					precision highp float;
 					uniform sampler2D texture;
-					varying vec2 vUv;
-					varying vec4 vColor;
+					varying vec2 v_uv;
+					varying vec4 v_color;
 
 					void main(void){
-						gl_FragColor = texture2D(texture, vUv);
+						gl_FragColor = texture2D(texture, v_uv);
 					}
 				`);
 		this.current_shader = this.shaders.normal;

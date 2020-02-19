@@ -19,22 +19,22 @@ export const Shader = class {
 					attribute vec2 uv;
 					attribute vec4 color;
 					uniform mat4 matrix;
-					varying vec2 vUv;
-					varying vec4 vColor;
+					varying vec2 v_uv;
+					varying vec4 v_color;
 
 					void main(void) {
-						vUv = uv;
-						vColor = color;
+						v_uv = uv;
+						v_color = color;
 						gl_Position = matrix * vec4(position, 1.0);
 					}
 				`,
 			fragment: `
 					precision highp float;
-					varying vec2 vUv;
-					varying vec4 vColor;
+					varying vec2 v_uv;
+					varying vec4 v_color;
 
 					void main(void){
-						gl_FragColor = vColor;
+						gl_FragColor = v_color;
 					}
 				`
 		};
@@ -106,7 +106,7 @@ export const Shader = class {
 	//  set(name, [mat]);
 	//  set(name, texture(GLCore.Texture));
 	set(name, x, y = null, z = null, w = null) {
-		//if (!this.uniforms_type.hasOwnProperty(name)) throw new RangeError();
+		if (!this.uniforms_type.hasOwnProperty(name)) return;
 		this.gl.useProgram(this.program);
 		switch (this.uniforms_type[name]) {
 			case "int":

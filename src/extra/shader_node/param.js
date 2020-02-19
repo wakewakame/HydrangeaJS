@@ -85,7 +85,7 @@ export const ValueNodeParam = class extends NodeParam {
 				break;
 			case "frame":
 				this.value = {
-					texture: null
+					frame: null
 				}
 				this.color = {r: 0.25882352941176473, g: 0.596078431372549, b: 0.7098039215686275};
 				break;

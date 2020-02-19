@@ -300,10 +300,11 @@ export const ShaderAndFrameNode = class extends Node {
 					);
 					break;
 				case "frame":
-					if (c.output.value.texture === null) return;
+					if (c.output.value.frame === null && c.output.value.frame.texture === null) return;
+					const texture = c.output.value.frame.texture;
 					this.frameShader.set(
 						c.name,
-						c.output.value.texture
+						texture
 					);
 					const name = c.name + "_area";
 					const type = this.frameShader.uniforms_type[name];
@@ -311,10 +312,10 @@ export const ShaderAndFrameNode = class extends Node {
 					if (["vec2", "ivec2", "vec4", "ivec4"].indexOf(type) >= 0){
 						this.frameShader.set(
 							name,
-							c.output.value.texture.width / c.output.value.texture.pow2_width,
-							c.output.value.texture.height / c.output.value.texture.pow2_height,
-							c.output.value.texture.width,
-							c.output.value.texture.height
+							texture.width / texture.pow2_width,
+							texture.height / texture.pow2_height,
+							texture.width,
+							texture.height
 						);
 					}
 					break;
@@ -325,8 +326,8 @@ export const ShaderAndFrameNode = class extends Node {
 		let tmpFrameBuffer = this.outputFrameBuffer;
 		this.outputFrameBuffer = this.previousOutputFrameBuffer;
 		this.previousOutputFrameBuffer = tmpFrameBuffer;
-		this.outputFrameNodeParam.value.texture = this.outputFrameBuffer.texture;
-		this.previousOutputFrameNodeParam.value.texture = this.previousOutputFrameBuffer.texture;
+		this.outputFrameNodeParam.value.frame = this.outputFrameBuffer;
+		this.previousOutputFrameNodeParam.value.frame = this.previousOutputFrameBuffer;
 		this.outputFrameBuffer.beginDraw();
 		const isEnableBlend = this.outputFrameBuffer.gl.isEnabled(this.outputFrameBuffer.gl.DITHER);
 		this.outputFrameBuffer.gl.disable(this.outputFrameBuffer.gl.BLEND);

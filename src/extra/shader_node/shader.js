@@ -145,13 +145,13 @@ void main(void){
 					);
 					break;
 				case "frame":
-					if (c.output.value.texture === null) {
+					if (c.output.value.frame === null && c.output.value.frame.texture === null) {
 						this.outputFrameNodeParam.value.shader = null;
 						continue;
 					}
 					this.shader.set(
 						c.name,
-						c.output.value.texture
+						c.output.value.frame.texture
 					);
 					break;
 			}

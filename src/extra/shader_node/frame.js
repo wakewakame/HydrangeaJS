@@ -70,7 +70,7 @@ export const FrameNode = class extends Node {
 				this.inputResolutionNodeParam.output.value.y
 			);
 		}
-		this.outputShaderNodeParam.value.texture = this.frameBuffer.texture;
+		this.outputShaderNodeParam.value.frame = this.frameBuffer;
 		this.outputResolutionNodeParam.value.x = this.frameBuffer.texture.width;
 		this.outputResolutionNodeParam.value.y = this.frameBuffer.texture.height;
 		if (this.inputShaderNodeParam.output === null) return;

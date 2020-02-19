@@ -298,10 +298,7 @@ export const ShaderAndFrameNode = class extends Node {
 					);
 					break;
 				case "frame":
-					if (c.output.value.texture === null) {
-						return;
-						continue;
-					}
+					if (c.output.value.texture === null) return;
 					this.frameShader.set(
 						c.name,
 						c.output.value.texture

@@ -9,7 +9,7 @@ export const TimeNode = class extends Node {
 	}
 	setup(){
 		super.setup();
-		this.outputFloatNodeParam = this.outputs.add(new ValueNodeParam("float", "output"));
+		this.outputFloatNodeParam = this.outputs.add(new ValueNodeParam("float", "output time"));
 		this.outputFloatNodeParam.value.x = 0.0;
 		this.time = Date.now();
 	}

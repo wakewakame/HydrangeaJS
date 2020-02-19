@@ -34,6 +34,7 @@
 		const FrameNode = HydrangeaJS.Extra.ShaderNode.FrameNode;
 		const ShaderAndFrameNode = HydrangeaJS.Extra.ShaderNode.ShaderAndFrameNode;
 		const ValueNode = HydrangeaJS.Extra.ShaderNode.ValueNode;
+		const ValueNodeParam = HydrangeaJS.Extra.ShaderNode.ValueNodeParam;
 
 		const NodeCanvasExt = class extends NodeCanvas{
 			constructor(page) {
@@ -234,9 +235,9 @@
 }
 				`);
 
-				node2.inputs.childs[0].output = node1.outputs.childs[0];
-				node2.inputs.childs[1].output = node0.outputs.childs[0];
-				node3.inputs.childs[0].output = node2.outputs.childs[0];
+				console.log(node2.setInput(node1, "output frame", "input_frame"));
+				node2.setInput(node0, "output time", "time");
+				node3.setInput(node2, "output frame", "input_frame");
 
 			}
 			loop(page) {

@@ -32,7 +32,7 @@ void main(void){
 	}
 	setup(){
 		super.setup();
-		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam("shader", "output"));
+		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam("shader", "output shader"));
 		this.shader = this.graphics.createShader();
 		this.shader.loadDefaultShader();
 	}

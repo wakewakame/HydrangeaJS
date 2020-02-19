@@ -53,8 +53,8 @@ export const ShaderAndFrameNode = class extends Node {
 	}
 	setup(){
 		super.setup();
-		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam("frame", "output"));
-		this.previousOutputFrameNodeParam = this.outputs.add(new ValueNodeParam("frame", "previous output"));
+		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam("frame", "output frame"));
+		this.previousOutputFrameNodeParam = this.outputs.add(new ValueNodeParam("frame", "previous output frame"));
 		this.frameShader = this.graphics.createShader();
 		this.frameShader.loadDefaultShader();
 		this.previewShader = this.graphics.createShader();

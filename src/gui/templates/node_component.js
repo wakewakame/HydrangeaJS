@@ -69,8 +69,13 @@ export const NodeParam = class extends Component {
 		this.arrow_shape.endShape();
 
 	}
-	canOutput(p){
-		return p.type === this.type;
+	canConnect(p) {
+		if (!(p instanceof NodeParam)) return false;
+		if (p === this) return false;
+		if (p.type !== this.type) return false;
+		//if (p.node === this.node) return false;
+		if (this.isInput === p.isInput) return false;
+		return true;
 	}
 	job() {}
 	reset() {}
@@ -148,13 +153,7 @@ export const NodeParam = class extends Component {
 				this.vector = new GLMath.vec2(x, y);
 				let grobalMouse = this.getGrobalPos(this.vector.arr[0], this.vector.arr[1]);
 				let hit = this.getRootComponent().getHit(grobalMouse.arr[0], grobalMouse.arr[1]);
-				this.output = null;
-				if(hit instanceof NodeParam) { this.output = hit; } else { return };
-				if((this.output === this) || (this.output.isInput)){
-					this.output = null;
-					return;
-				}
-				this.output = this.canOutput(this.output) ? this.output : null;
+				this.output = this.canConnect(hit) ? hit : null;
 			}
 		}
 		else {
@@ -169,13 +168,7 @@ export const NodeParam = class extends Component {
 				this.vector = new GLMath.vec2(x, y);
 				let grobalMouse = this.getGrobalPos(this.vector.arr[0], this.vector.arr[1]);
 				let hit = this.getRootComponent().getHit(grobalMouse.arr[0], grobalMouse.arr[1]);
-				this.output = null;
-				if(hit instanceof NodeParam) { this.output = hit; } else { return };
-				if((this.output === this) || (!this.output.isInput)){
-					this.output = null;
-					return;
-				}
-				this.output = this.output.canOutput(this) ? this.output : null;
+				this.output = this.canConnect(hit) ? hit : null;
 			}
 		}
 	}
@@ -193,7 +186,8 @@ export const NodeParams = class extends Component {
 		this.name = this.isInput ? "Input" : "Output";
 	}
 	add(child){
-		if(!(child instanceof NodeParam)) return null;
+		if (!(child instanceof NodeParam)) return null;
+		if (this.childs.findIndex(c => (c.name === child.name)) !== -1) return null;
 		child.x = 0;
 		child.y = this.h;
 		child.size = this.size;
@@ -240,6 +234,16 @@ export const Node = class extends SwingComponent {
 		if (this.textTextures.type !== null) this.textTextures.type.delete;
 		if (this.textTextures.name !== null) this.textTextures.name.delete;
 		super.deleted();
+	}
+	setInput(srcNode, srcParamName, thisParamName){
+		if (!(srcNode instanceof Node)) return;
+		if (srcNode === this) return;
+		const inputList = this.inputs.childs.filter(c => (c.name === thisParamName));
+		const outputList = srcNode.outputs.childs.filter(c => (c.name === srcParamName));
+		if ((inputList.length === 0) || (outputList.length === 0)) return;
+		const input = inputList[0], output = outputList[0];
+		if (!input.canConnect(output)) return;
+		input.output = output;
 	}
 	setup(){
 		super.setup();

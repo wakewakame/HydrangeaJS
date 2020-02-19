@@ -19,10 +19,10 @@ export const FrameNode = class extends Node {
 	}
 	setup(){
 		super.setup();
-		this.inputShaderNodeParam = this.inputs.add(new ValueNodeParam("shader", "input"));
-		this.inputResolutionNodeParam = this.inputs.add(new ValueNodeParam("ivec2", "input"));
-		this.outputShaderNodeParam = this.outputs.add(new ValueNodeParam("frame", "output"));
-		this.outputResolutionNodeParam = this.outputs.add(new ValueNodeParam("ivec2", "output"));
+		this.inputShaderNodeParam = this.inputs.add(new ValueNodeParam("shader", "input shader"));
+		this.inputResolutionNodeParam = this.inputs.add(new ValueNodeParam("ivec2", "input resolution"));
+		this.outputShaderNodeParam = this.outputs.add(new ValueNodeParam("frame", "output frame"));
+		this.outputResolutionNodeParam = this.outputs.add(new ValueNodeParam("ivec2", "output resolution"));
 		this.frameBuffer = this.graphics.createFrame(
 			this.frameBufferState.width,
 			this.frameBufferState.height,

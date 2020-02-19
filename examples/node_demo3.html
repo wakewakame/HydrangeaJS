@@ -195,7 +195,164 @@
 			init(page) {
 				this.nodeCanvas = page.addComponent(new NodeCanvasExt(page));
 				
-				this.nodeCanvas.load([{"unique_id":0,"type":"time","name":"time","x":30,"y":300,"w":140,"h":24,"inpus":[],"custom":{},"inputs":[]},{"unique_id":1,"type":"image","name":"lenna","x":30,"y":30,"w":140,"h":24,"inpus":[],"custom":{"frameBufferState":{"width":1,"height":1,"format":null,"type":null},"img_url":"./lenna.png"},"inputs":[]},{"unique_id":2,"type":"filter","name":"rotate","x":280,"y":150,"w":140,"h":24,"inpus":[],"custom":{"frameBufferState":{"width":512,"height":512,"type":5121},"compileState":{"initialized":true,"lastChangeTime":1582147427010,"isCompiled":true,"code":"\n{\n\t\"output_width\": 512,\n\t\"output_height\": 512,\n\t\"output_type\": \"UNSIGNED_BYTE\",\n\t\"code\": \"\n\t\tprecision highp float;\n\t\tuniform sampler2D input_frame;\n\t\tuniform vec4 input_frame_area;\n\t\tuniform float time;\n\t\tvarying vec2 v_uv;\n\n\t\tvoid main(void){\n\t\t\tvec2 p = v_uv * input_frame_area.xy;\n\t\t\tp -= vec2(0.5);\n\t\t\tp *= mat2(cos(time), -sin(time), sin(time), cos(time));\n\t\t\tp += vec2(0.5);\n\t\t\tgl_FragColor = texture2D(input_frame, p);\n\t\t}\n\t\"\n}\n\t\t\t\t","error":"","latency":500}},"inputs":[{"srcNodeId":1,"srcParamName":"output frame","thisParamName":"input_frame"},{"srcNodeId":0,"srcParamName":"output time","thisParamName":"time"}]},{"unique_id":3,"type":"filter","name":"colorful","x":530,"y":150,"w":140,"h":24,"inpus":[],"custom":{"frameBufferState":{"width":512,"height":512,"type":5121},"compileState":{"initialized":true,"lastChangeTime":1582147427050,"isCompiled":true,"code":"\n{\n\t\"output_width\": 512,\n\t\"output_height\": 512,\n\t\"output_type\": \"UNSIGNED_BYTE\",\n\t\"code\": \"\n\t\tprecision highp float;\n\t\tuniform sampler2D input_frame;\n\t\tuniform vec4 input_frame_area;\n\t\tvarying vec2 v_uv;\n\n\t\tvoid main(void){\n\t\t\tgl_FragColor = texture2D(input_frame, v_uv * input_frame_area.xy);\n\t\t\tgl_FragColor.rgb += vec3(v_uv.x, 1.0 - sqrt(v_uv.x * v_uv.x + v_uv.y * v_uv.y), v_uv.y);\n\t\t}\n\t\",\n\t\"preview\": \"\n\t\tprecision highp float;\n\t\tuniform sampler2D output_frame;\n\t\tuniform vec2 output_frame_area;\n\t\tvarying vec2 v_uv;\n\n\t\tvoid main(void){\n\t\t\tgl_FragColor = texture2D(output_frame, v_uv * output_frame_area);\n\t\t}\n\t\"\n}\n\t\t\t\t","error":"","latency":500}},"inputs":[{"srcNodeId":2,"srcParamName":"output frame","thisParamName":"input_frame"}]}]);
+				this.nodeCanvas.load(
+					[
+						{
+							"unique_id":0,
+							"type":"time",
+							"name":"time",
+							"x":30,
+							"y":300,
+							"w":140,
+							"h":24,
+							"inpus":[],
+							"custom":{},
+							"inputs":[]
+						},
+						{
+							"unique_id":1,
+							"type":"image",
+							"name":"lenna",
+							"x":30,
+							"y":30,
+							"w":140,
+							"h":24,
+							"inpus":[],
+							"custom":
+							{
+								"frameBufferState":
+								{
+									"width":1,
+									"height":1,
+									"format":null,"type":null
+								},
+								"img_url":"./lenna.png"
+							},
+							"inputs":[]
+						},
+						{
+							"unique_id":2,
+							"type":"filter",
+							"name":"rotate",
+							"x":280,
+							"y":150,
+							"w":140,
+							"h":24,
+							"inpus":[],
+							"custom":
+							{
+								"frameBufferState":
+								{
+									"width":512,
+									"height":512,
+									"type":5121
+								},
+								"compileState":
+								{
+									"initialized":true,
+									"lastChangeTime":1582147427010,
+									"isCompiled":true,
+									"code":JSON.stringify({
+										"output_width": 512,
+										"output_height": 512,
+										"output_type": "UNSIGNED_BYTE",
+										"code": `
+											precision highp float;
+											uniform sampler2D input_frame;
+											uniform vec4 input_frame_area;
+											uniform float time;
+											varying vec2 v_uv;
+
+											void main(void){
+												vec2 p = v_uv * input_frame_area.xy;
+												p -= vec2(0.5);
+												p *= mat2(cos(time), -sin(time), sin(time), cos(time));
+												p += vec2(0.5);
+												gl_FragColor = texture2D(input_frame, p);
+											}
+										`
+									}),
+									"error":"",
+									"latency":500
+								}
+							},
+							"inputs":
+							[
+								{
+									"srcNodeId":1,
+									"srcParamName":"output frame",
+									"thisParamName":"input_frame"
+								},
+								{
+									"srcNodeId":0,
+									"srcParamName":"output time",
+									"thisParamName":"time"
+								}
+							]
+						},
+						{
+							"unique_id":3,
+							"type":"filter",
+							"name":"colorful",
+							"x":530,
+							"y":150,
+							"w":140,
+							"h":24,
+							"inpus":[],
+							"custom":
+							{
+								"frameBufferState":
+								{
+									"width":512,
+									"height":512,
+									"type":5121
+								},
+								"compileState":
+								{
+									"initialized":true,
+									"lastChangeTime":1582147427050,
+									"isCompiled":true,
+									"code":JSON.stringify({
+										"output_width": 512,
+										"output_height": 512,
+										"output_type": "UNSIGNED_BYTE",
+										"code": `
+											precision highp float;
+											uniform sampler2D input_frame;
+											uniform vec4 input_frame_area;
+											varying vec2 v_uv;
+
+											void main(void){
+												gl_FragColor = texture2D(input_frame, v_uv * input_frame_area.xy);
+												gl_FragColor.rgb += vec3(v_uv.x, 1.0 - sqrt(v_uv.x * v_uv.x + v_uv.y * v_uv.y), v_uv.y);
+											}
+										`,
+										"preview": `
+											precision highp float;
+											uniform sampler2D output_frame;
+											uniform vec2 output_frame_area;
+											varying vec2 v_uv;
+
+											void main(void){
+												gl_FragColor = texture2D(output_frame, v_uv * output_frame_area);
+											}
+										`
+									}),
+									"error":"",
+									"latency":500
+								}
+							},
+							"inputs":
+							[
+								{
+									"srcNodeId":2,
+									"srcParamName":"output frame",
+									"thisParamName":"input_frame"
+								}
+							]
+						}
+					]
+				);
 
 			}
 			loop(page) {

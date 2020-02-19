@@ -110,6 +110,6 @@ export const ConvertibleNodeCanvas = class extends NodeCanvas {
 	}
 	save(){
 		this.json = this.childs.map(c => c.save());
-		return JSON.stringify(this.json);
+		return this.json;
 	}
 };

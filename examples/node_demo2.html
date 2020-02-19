@@ -255,7 +255,7 @@
 				node2.setInput(node0, "output time", "time");
 				node3.setInput(node2, "output frame", "input_frame");
 
-				console.log(this.nodeCanvas.save());
+				console.log(JSON.stringify(this.nodeCanvas.save()));
 
 			}
 			loop(page) {

@@ -27,6 +27,7 @@ export const Frame = class {
 		if (this.frame_buffer !== null) this.delete();
 		this.frame_buffer = this.gl.createFramebuffer();
 		this.texture = new Texture(this.app, this.width, this.height, format, type);
+		this.texture.frame = this;
 		const currentFrameBuffer = this.gl.getParameter(this.gl.FRAMEBUFFER_BINDING);
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frame_buffer);
 		this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.texture.texture_buffer, 0);

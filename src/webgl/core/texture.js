@@ -11,6 +11,8 @@ export const Texture = class {
 		this.format = (format === null) ? this.gl.RGBA : format;
 		this.type = (type === null) ? this.gl.UNSIGNED_BYTE : type;
 		this.resize(width, height, format, type);
+
+		this.frame = null;  // this is used when the Frame class owns this instance.
 	}
 	resize(width = 1, height = 1, format = null, type = null) {
 		if ((typeof (width) !== "number") || (typeof (height) !== "number")) throw new TypeError();
@@ -90,5 +92,6 @@ export const Texture = class {
 	delete() {
 		this.gl.deleteTexture(this.texture_buffer);
 		this.texture_buffer = null;
+		this.frame = null;
 	}
 };

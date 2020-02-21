@@ -255,6 +255,11 @@ export const Node = class extends SwingComponent {
 		this.textTextures.type.loadText(this.type, "#FF007B", 100, "monospace", true);
 		this.textTextures.name.loadText(this.name, "#303030", 180, "monospace", true);
 	}
+	rename(name){
+		if (this.name === name) return;
+		this.name = name;
+		if (this.textTextures.name !== null) this.textTextures.name.loadText(this.name, "#303030", 180, "monospace", true);
+	}
 	job(){
 		this.finishJob = true;
 		for(let c of this.inputs.childs){

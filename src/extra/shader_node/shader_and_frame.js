@@ -146,10 +146,13 @@ export const ShaderAndFrameNode = class extends ConvertibleNode {
 			if (!code_json.hasOwnProperty("output_height")) throw new RangeError('output_height is not defined');
 			if (typeof(code_json["output_height"]) !== "number") throw new TypeError('output_height is not number');
 			if (!code_json.hasOwnProperty("output_type")) throw new RangeError('output_type is not defined');
-			if ((code_json["output_type"] != "UNSIGNED_BYTE") && (code_json["output_type"] != "FLOAT")) throw new RangeError('output_type is wrong value. you can select only "UNSIGNED_BYTE" or "FLOAT"');
+			if ((code_json["output_type"] !== "UNSIGNED_BYTE") && (code_json["output_type"] !== "FLOAT")) throw new RangeError('output_type is wrong value. you can select only "UNSIGNED_BYTE" or "FLOAT"');
 			code_json["output_type"] = this.outputFrameBuffer.gl[code_json["output_type"]];
 			if (!code_json.hasOwnProperty("code")) throw new RangeError('code is not defined');
+			if (typeof(code_json["code"]) !== "string") throw new TypeError('code is not string');
 			if (!code_json.hasOwnProperty("preview")) code_json["preview"] = this.json_parse(this.default_code)["preview"];
+			if (typeof(code_json["preview"]) !== "string") throw new TypeError('preview is not string');
+			if (code_json.hasOwnProperty("name") && (typeof(code_json["name"]) !== "string")) throw new TypeError('name is not string');
 		}
 		catch(e){
 			this.json["custom"].compileState.error = e.message;
@@ -194,6 +197,9 @@ export const ShaderAndFrameNode = class extends ConvertibleNode {
 			code_json["output_height"],
 			code_json["output_type"]
 		);
+
+		// rename
+		if (code_json.hasOwnProperty("name") && (typeof(code_json["name"]) === "string")) this.rename(code_json["name"]);
 	}
 	json_parse(code){
 		let ret = code;
@@ -314,7 +320,7 @@ export const ShaderAndFrameNode = class extends ConvertibleNode {
 					);
 					break;
 				case "frame":
-					if (c.output.value.frame === null && c.output.value.frame.texture === null) return;
+					if (c.output.value.frame === null) return;
 					const texture = c.output.value.frame.texture;
 					this.frameShader.set(
 						c.name,

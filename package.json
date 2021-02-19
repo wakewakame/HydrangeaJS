@@ -1,18 +1,25 @@
 {
-  "name": "hydrangeajs",
+  "name": "HydrangeaJS",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "start": "webpack-dev-server"
+    "start": "webpack-cli serve --host 0.0.0.0 --https"
   },
+  "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "dependencies": {
+    "monaco-editor": "^0.22.3"
+  },
   "devDependencies": {
-    "webpack": "^4.41.0",
-    "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.8.1"
+    "webpack": "^5.23.0",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2",
+    "file-loader": "^6.2.0",
+    "css-loader": "^5.0.2",
+    "style-loader": "^2.0.0",
+    "monaco-editor-webpack-plugin": "^3.0.0"
   }
 }

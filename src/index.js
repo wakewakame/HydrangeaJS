@@ -19,6 +19,7 @@ import { ShaderAndFrameNode } from "./extra/shader_node/shader_and_frame.js";
 import { TimeNode } from "./extra/shader_node/time.js";
 import { ValueNode } from "./extra/shader_node/value.js";
 import { Audio } from "./extra/audio/audio.js";
+import * as monaco from 'monaco-editor';
 
 export const HydrangeaJS = {
 	Utils: {
@@ -68,7 +69,8 @@ export const HydrangeaJS = {
 		Audio: {
 			Audio: Audio
 		}
-	}
+	},
+	monaco: monaco,
 };
 
 window.HydrangeaJS = HydrangeaJS;

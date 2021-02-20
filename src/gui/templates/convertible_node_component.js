@@ -31,7 +31,7 @@ export const ConvertibleNode = class extends Node {
 			"y": 0.0,
 			"w": 0.0,
 			"h": 0.0,
-			"inpus": [],
+			"inputs": [],
 			"custom": {}
 		};
 	}
@@ -46,10 +46,9 @@ export const ConvertibleNode = class extends Node {
 		this.json = json;
 		this.type = this.json["type"];
 		this.name = this.json["name"];
-		this.x = this.json["x"];
-		this.y = this.json["y"];
-		this.w = this.json["w"];
-		this.h = this.json["h"];
+		this.target.x = this.x = this.json["x"];
+		this.target.y = this.y = this.json["y"];
+		this.resize(this.json["w"], this.json["h"]);
 	}
 	connectInput(){
 		const nodeList = this.parent.childs.filter(c => (c instanceof ConvertibleNode));
@@ -106,7 +105,7 @@ export const ConvertibleNodeCanvas = class extends NodeCanvas {
 			this.add(node);
 			nodes.push(node);
 		});
-		nodes.forEach(n => n.connectInput());
+		this.childs.filter(c => (c instanceof ConvertibleNode)).forEach(n => n.connectInput());
 	}
 	save(){
 		this.json = this.childs.map(c => c.save());

@@ -16,6 +16,7 @@ export const ShaderAndFrameNode = class extends ConvertibleNode {
 		this.previousOutputFrameNodeParam = null;
 		this.default_code = 
 `{
+	"name": "copy",
 	"output_width": 512,
 	"output_height": 512,
 	"output_type": "UNSIGNED_BYTE",

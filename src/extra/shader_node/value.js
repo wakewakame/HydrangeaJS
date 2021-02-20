@@ -34,14 +34,12 @@ export const ValueNode = class extends ConvertibleNode {
 				break;
 		}
 		this.outputFrameNodeParam = this.outputs.add(new ValueNodeParam(this.type, "output"));
-		if (this.json["custom"].compileState.code !== ""){
-			this.json["custom"].compileState.code = '{';
-			Object.keys(this.outputFrameNodeParam.value).forEach(key => {
-				this.json["custom"].compileState.code += '\n\t"' + key + '": 0.0,';
-			});
-			this.json["custom"].compileState.code = this.json["custom"].compileState.code.slice(0, -1);
-			this.json["custom"].compileState.code += '\n}';
-		}
+		this.json["custom"].compileState.code = '{\n\t"name" : "' + this.name + '",';
+		Object.keys(this.outputFrameNodeParam.value).forEach(key => {
+			this.json["custom"].compileState.code += '\n\t"' + key + '": 0.0,';
+		});
+		this.json["custom"].compileState.code = this.json["custom"].compileState.code.slice(0, -1);
+		this.json["custom"].compileState.code += '\n}';
 		this.json["custom"].compileState = {
 			initialized: false,
 			lastChangeTime: Date.now(),
@@ -78,12 +76,13 @@ export const ValueNode = class extends ConvertibleNode {
 			Object.keys(this.outputFrameNodeParam.value).forEach(key => {
 				this.outputFrameNodeParam.value[key] = p[key];
 			});
+			if (p.hasOwnProperty("name")) this.rename(String(p["name"]));
 		}
 		catch(e){
 			this.json["custom"].compileState.error = e.message;
 			console.log(e.message);
 		}
-		
+
 		this.json["custom"].compileState.isCompiled = true;
 		if (this.json["custom"].compileState.error !== "") {
 			if (this.color !== {r: 1.0, g: 0.0, b: 0.2}) {

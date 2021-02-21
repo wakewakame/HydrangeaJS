@@ -101,6 +101,7 @@ void main(void){
 				param.output = inputs_output[key].output;
 			}
 		});
+		if (code_json.hasOwnProperty("name")) { this.rename(code_json["name"]); }
 	}
 	update(){
 		super.update();
@@ -171,5 +172,10 @@ void main(void){
 			}
 		}
 		this.finishJob = false;
+	}
+	load(json) {
+		super.load(json);
+		this.json["custom"].compileState.initialized = false;
+		this.setCode(this.json["custom"].compileState.code);
 	}
 };

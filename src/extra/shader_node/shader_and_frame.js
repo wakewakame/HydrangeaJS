@@ -199,8 +199,7 @@ export const ShaderAndFrameNode = class extends ConvertibleNode {
 			code_json["output_type"]
 		);
 
-		// rename
-		if (code_json.hasOwnProperty("name") && (typeof(code_json["name"]) === "string")) this.rename(code_json["name"]);
+		if (code_json.hasOwnProperty("name")) { this.rename(code_json["name"]); }
 	}
 	json_parse(code){
 		let ret = code;
@@ -359,5 +358,10 @@ export const ShaderAndFrameNode = class extends ConvertibleNode {
 		this.graphics.shader(tmp_current_shader);
 		this.outputFrameBuffer.endDraw();
 		if (isEnableBlend) this.outputFrameBuffer.gl.enable(this.outputFrameBuffer.gl.BLEND);
+	}
+	load(json) {
+		super.load(json);
+		this.json["custom"].compileState.initialized = false;
+		this.setCode(this.json["custom"].compileState.code);
 	}
 };

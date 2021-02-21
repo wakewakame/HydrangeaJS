@@ -39,20 +39,10 @@ export const Audio = class {
 	}
 
 	loadSound(url, successCallback, errorCallback) {
-		let req = new XMLHttpRequest();
-		req.responseType = 'arraybuffer';
-		req.onreadystatechange = () => {
-			if (req.readyState === 4) {
-				if (req.status === 0 || req.status === 200) {
-					this.audio_context.decodeAudioData(req.response).then((audioBuffer) => {
-						if (successCallback) successCallback(audioBuffer);
-					}).catch((e) => {
-						if (errorCallback) errorCallback(e);
-					});
-				}
-			}
-		};
-		req.open('GET', url, true);
-		req.send('');
+		fetch(url)
+			.then(response => response.arrayBuffer())
+			.then(arrayBuffer => this.audio_context.decodeAudioData(arrayBuffer))
+			.then(audioBuffer => successCallback(audioBuffer))
+			.catch(e => errorCallback(e));
 	};
 };

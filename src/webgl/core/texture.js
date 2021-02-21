@@ -46,7 +46,7 @@ export const Texture = class {
 		this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, left, top, width, height, this.format, this.type, pixels);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, currentTexture);
 	}
-	loadImg(src, callback = null) {
+	loadImg(src, callback = null, errCallback = null) {
 		let img = new Image();
 		img.onload = () => {
 			this.resize(img.width, img.height);
@@ -56,7 +56,10 @@ export const Texture = class {
 			this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, 0, 0, this.format, this.type, img);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, currentTexture);
 			if (callback !== null) callback();
-		}
+		};
+		img.onerror = () => {
+			if (errCallback !== null) errCallback();
+		};
 		img.src = src;
 	}
 	loadText(text, color = "#000000", size = 10, font = "sans-serif", bold = false) {

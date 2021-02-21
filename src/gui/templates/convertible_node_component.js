@@ -45,10 +45,10 @@ export const ConvertibleNode = class extends Node {
 	load(json){
 		this.json = json;
 		this.type = this.json["type"];
-		this.name = this.json["name"];
 		this.target.x = this.x = this.json["x"];
 		this.target.y = this.y = this.json["y"];
 		this.resize(this.json["w"], this.json["h"]);
+		this.rename(this.json["name"]);
 	}
 	connectInput(){
 		const nodeList = this.parent.childs.filter(c => (c instanceof ConvertibleNode));
@@ -97,13 +97,11 @@ export const ConvertibleNodeCanvas = class extends NodeCanvas {
 	}
 	load(json){
 		this.json = json;
-		let nodes = [];
 		this.json.forEach(j => {
 			if (!this.typeClassPair.hasOwnProperty(j["type"])) return;
 			const node = new this.typeClassPair[j["type"]];
-			node.load(j);
 			this.add(node);
-			nodes.push(node);
+			node.load(j);
 		});
 		this.childs.filter(c => (c instanceof ConvertibleNode)).forEach(n => n.connectInput());
 	}

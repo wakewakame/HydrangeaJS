@@ -172,4 +172,9 @@ void main(void){
 		}
 		this.finishJob = false;
 	}
+	load(json) {
+		super.load(json);
+		this.json["custom"].compileState.initialized = false;
+		this.setCode(this.json["custom"].compileState.code);
+	}
 };

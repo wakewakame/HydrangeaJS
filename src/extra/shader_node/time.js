@@ -2,10 +2,12 @@ import { ConvertibleNode } from "../../gui/templates/convertible_node_component.
 import { ValueNodeParam } from "./param.js";
 
 export const TimeNode = class extends ConvertibleNode {
-	constructor() {
+	constructor(x = 0, y = 0) {
 		super();
 		this.type = "time";
 		this.name = "time";
+		this.x = x;
+		this.y = y;
 		this.outputFloatNodeParam = null;
 		this.outputIntNodeParam = null;
 		this.time = 0;

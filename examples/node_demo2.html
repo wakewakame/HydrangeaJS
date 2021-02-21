@@ -199,6 +199,11 @@
 				let node2 = this.nodeCanvas.add(new ShaderAndFrameNode("rotate", 30 + 250 * 1, 150, 500));
 				let node3 = this.nodeCanvas.add(new ShaderAndFrameNode("colorful", 30 + 250 * 2, 150, 500));
 
+				node2.json["custom"].compileState.initialized = false;
+				node3.json["custom"].compileState.initialized = false;
+
+				console.log(node2.json["custom"])
+
 				node2.setCode(`
 {
 	"output_width": 512,
@@ -252,7 +257,7 @@
 				`);
 
 				node2.setInput(node1, "output frame", "input_frame");
-				node2.setInput(node0, "output time", "time");
+				node2.setInput(node0, "output time in seconds", "time");
 				node3.setInput(node2, "output frame", "input_frame");
 
 				console.log(JSON.stringify(this.nodeCanvas.save()));

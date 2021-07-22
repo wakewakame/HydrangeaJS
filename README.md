@@ -8,7 +8,7 @@ ComponentクラスがUIパーツの基本単位であり、このクラスを継
 
 # デモ
 
-[https://wakewakame.github.com/HydrangeaJS/](https://wakewakame.github.com/HydrangeaJS/)
+[https://wakewakame.github.io/HydrangeaJS/](https://wakewakame.github.io/HydrangeaJS/)
 
 # ビルド
 
